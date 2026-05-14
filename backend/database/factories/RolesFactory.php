@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class RolesFactory extends Factory
 {
-
+    protected $model = Roles::class;
     public function definition(): array
     {
         return [

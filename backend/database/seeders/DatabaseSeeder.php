@@ -17,12 +17,20 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolesSeeder::class,
+            UsersSeeder::class,
             VehicleTypesSeeder::class,
             VehicleModelsSeeder::class,
             StatusesSeeder::class,
             StationsSeeder::class,
+            VehiclesSeeder::class,
+            BookingsSeeder::class,
+            IssuesSeeder::class,
             InterventionCategoriesSeeder::class,
             InterventionStatusesSeeder::class,
+            InterventionsSeeder::class,
+            ReportsSeeder::class,
+            
+
         ]);
 
     }

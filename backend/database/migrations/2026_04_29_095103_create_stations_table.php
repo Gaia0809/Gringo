@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('vehicle_type_id')->constrained('vehicle_types')->cascadeOnDelete();
             $table->string('position')->nullable();
-            $table->integer('total_slots');
+            $table->integer('capacity')->nullable();
             $table->foreignId('status_id')->constrained('statuses')->cascadeOnDelete();
             $table->timestamps();
         });

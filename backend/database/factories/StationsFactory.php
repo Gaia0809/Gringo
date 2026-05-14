@@ -2,23 +2,23 @@
 
 namespace Database\Factories;
 
-use App\Models\stations;
+use App\Models\Stations;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\VehicleTypes;
+use App\Models\Status;
 
-/**
- * @extends Factory<stations>
- */
+
 class StationsFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Stations::class;
     public function definition(): array
     {
         return [
-            //
+            'name' => 'stazione',
+            'vehicle_type_id' => VehicleTypes::inRandomOrder()->first()->id,
+            'position' => $this->faker->latitude() . ', ' . $this->faker->longitude(),
+            'capacity' => $this->faker->numberBetween(3, 5),
+            'status_id' => Status::inRandomOrder()->first()->id,
         ];
     }
 }

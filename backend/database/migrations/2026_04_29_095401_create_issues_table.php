@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('issues', function (Blueprint $table) {
             $table->id();
             $table->foreignId('booking_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignId('vehicle_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignId('station_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->string('title');
+            $table->text('description');
             $table->string('photo')->nullable();
             $table->string('position')->nullable();
             $table->timestamp('created_at')->useCurrent();

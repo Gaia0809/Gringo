@@ -5,9 +5,6 @@ namespace Database\Factories;
 use App\Models\InterventionCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends Factory<InterventionCategory>
- */
 class InterventionCategoriesFactory extends Factory
 {
     protected $model = InterventionCategory::class;

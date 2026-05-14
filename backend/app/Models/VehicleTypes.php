@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class statuses extends Model
+class VehicleTypes extends Model
 {
-    /** @use HasFactory<\Database\Factories\StatusesFactory> */
-    use HasFactory;
+    protected $table = 'vehicle_types';
+    protected $fillable = ['name'];
 }

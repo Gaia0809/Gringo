@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\statuses;
+use App\Models\Status;
 
 class StatusesSeeder extends Seeder
 {
@@ -26,7 +26,7 @@ class StatusesSeeder extends Seeder
         foreach ($statuses as $status) {
             // Usiamo firstOrCreate invece di create per evitare duplicati 
             // se per caso lanci il seeder due volte di fila!
-            statuses::firstOrCreate(['name' => $status]);
+            Status::firstOrCreate(['name' => $status]);
         }
 
     }

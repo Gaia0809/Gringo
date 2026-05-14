@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\InterventionStatuses;
 
 class InterventionStatusesSeeder extends Seeder
 {
@@ -12,17 +13,17 @@ class InterventionStatusesSeeder extends Seeder
      */
     public function run(): void
     {
-       $intervention_statuses = [
+       $InterventionStatuses = [
             'In Attesa',
             'In Corso',
             'Completato',
             'Annullato',
         ];
 
-        foreach ($intervention_statuses as $status) {
+        foreach ($InterventionStatuses as $status) {
             // Usiamo firstOrCreate invece di create per evitare duplicati 
             // se per caso lanci il seeder due volte di fila!
-            \App\Models\intervention_statuses::firstOrCreate(['name' => $status]);
+            InterventionStatuses::firstOrCreate(['name' => $status]);
         }
     }
 }

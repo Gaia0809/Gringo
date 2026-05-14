@@ -2,23 +2,19 @@
 
 namespace Database\Factories;
 
-use App\Models\vehicle_models;
+use App\Models\VehicleModels;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\VehicleTypes;
 
-/**
- * @extends Factory<vehicle_models>
- */
 class VehicleModelsFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = VehicleModels::class;
     public function definition(): array
     {
         return [
-            //
+            'name' => $this->faker->word(),
+            'vehicle_type_id' => VehicleTypes::inRandomOrder()->first()->id,
+            'technical_sheet' => $this->faker->url(),
         ];
     }
 }

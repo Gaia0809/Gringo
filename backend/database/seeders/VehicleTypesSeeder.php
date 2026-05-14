@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\vehicle_types;
+use App\Models\VehicleTypes;
 
 class VehicleTypesSeeder extends Seeder
 {
@@ -13,16 +13,16 @@ class VehicleTypesSeeder extends Seeder
      */
     public function run(): void
     {
-        $vehicle_types = [
+        $VehicleTypes = [
             'Monopattino Elettrico',
             'Bicicletta Elettrica',
             'Macchina Elettrica',
         ];
 
-        foreach ($vehicle_types as $type) {
+        foreach ($VehicleTypes as $type) {
             // Usiamo firstOrCreate invece di create per evitare duplicati 
             // se per caso lanci il seeder due volte di fila!
-            vehicle_types::firstOrCreate(['name' => $type]);
+            VehicleTypes::firstOrCreate(['name' => $type]);
         }
     }
 }
