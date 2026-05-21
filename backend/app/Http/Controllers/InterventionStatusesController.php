@@ -2,65 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\intervention_statuses;
+use App\Models\InterventionStatuses;
 use App\Http\Requests\Storeintervention_statusesRequest;
 use App\Http\Requests\Updateintervention_statusesRequest;
+use Illuminate\Http\JsonResponse;
 
 class InterventionStatusesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $allStatuses = InterventionStatuses::all();
+        return response()->json($allStatuses);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(Storeintervention_statusesRequest $request): JsonResponse
     {
-        //
+        $newStatus = InterventionStatuses::create($request->validated());
+        return response()->json($newStatus, 210);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Storeintervention_statusesRequest $request)
+    public function show(InterventionStatuses $interventionStatus): JsonResponse
     {
-        //
+        return response()->json($interventionStatus);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(intervention_statuses $intervention_statuses)
+    public function update(Updateintervention_statusesRequest $request, InterventionStatuses $interventionStatus): JsonResponse
     {
-        //
+        $interventionStatus->update($request->validated());
+        return response()->json($interventionStatus);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(intervention_statuses $intervention_statuses)
+    public function destroy(InterventionStatuses $interventionStatus): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Updateintervention_statusesRequest $request, intervention_statuses $intervention_statuses)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(intervention_statuses $intervention_statuses)
-    {
-        //
+        $interventionStatus->delete();
+        return response()->json(null, 204);
     }
 }

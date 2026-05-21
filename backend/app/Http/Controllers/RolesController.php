@@ -2,65 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\roles;
+use App\Models\Roles;
 use App\Http\Requests\StorerolesRequest;
 use App\Http\Requests\UpdaterolesRequest;
+use Illuminate\Http\JsonResponse;
 
 class RolesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $allRoles = Roles::all();
+        return response()->json($allRoles);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StorerolesRequest $request): JsonResponse
     {
-        //
+        $newRole = Roles::create($request->validated());
+        return response()->json($newRole, 210);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorerolesRequest $request)
+    public function show(Roles $role): JsonResponse
     {
-        //
+        return response()->json($role);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(roles $roles)
+    public function update(UpdaterolesRequest $request, Roles $role): JsonResponse
     {
-        //
+        $role->update($request->validated());
+        return response()->json($role);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(roles $roles)
+    public function destroy(Roles $role): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdaterolesRequest $request, roles $roles)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(roles $roles)
-    {
-        //
+        $role->delete();
+        return response()->json(null, 204);
     }
 }

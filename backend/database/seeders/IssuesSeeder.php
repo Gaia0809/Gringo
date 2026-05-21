@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Issues;
 use Illuminate\Database\Seeder;
 
 class IssuesSeeder extends Seeder
@@ -12,6 +12,6 @@ class IssuesSeeder extends Seeder
      */
     public function run(): void
     {
-        
+        Issues::factory()->count(10)->create();
     }
 }

@@ -2,65 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\stations;
+use App\Models\Stations;
 use App\Http\Requests\StorestationsRequest;
 use App\Http\Requests\UpdatestationsRequest;
+use Illuminate\Http\JsonResponse;
 
 class StationsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $allStations = Stations::with(['vehicleType', 'status'])->get();
+        return response()->json($allStations);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StorestationsRequest $request): JsonResponse
     {
-        //
+        $newStation = Stations::create($request->validated());
+        return response()->json($newStation, 210);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorestationsRequest $request)
+    public function show(Stations $station): JsonResponse
     {
-        //
+        return response()->json($station->load(['vehicleType', 'status']));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(stations $stations)
+    public function update(UpdatestationsRequest $request, Stations $station): JsonResponse
     {
-        //
+        $station->update($request->validated());
+        return response()->json($station);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(stations $stations)
+    public function destroy(Stations $station): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatestationsRequest $request, stations $stations)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(stations $stations)
-    {
-        //
+        $station->delete();
+        return response()->json(null, 204);
     }
 }

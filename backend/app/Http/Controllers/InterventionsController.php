@@ -2,65 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\interventions;
+use App\Models\Interventions;
 use App\Http\Requests\StoreinterventionsRequest;
 use App\Http\Requests\UpdateinterventionsRequest;
+use Illuminate\Http\JsonResponse;
 
 class InterventionsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $allInterventions = Interventions::with(['category', 'issue', 'status'])->get();
+        return response()->json($allInterventions);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreinterventionsRequest $request): JsonResponse
     {
-        //
+        $newIntervention = Interventions::create($request->validated());
+        return response()->json($newIntervention, 210);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreinterventionsRequest $request)
+    public function show(Interventions $intervention): JsonResponse
     {
-        //
+        return response()->json($intervention->load(['category', 'issue', 'status']));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(interventions $interventions)
+    public function update(UpdateinterventionsRequest $request, Interventions $intervention): JsonResponse
     {
-        //
+        $intervention->update($request->validated());
+        return response()->json($intervention);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(interventions $interventions)
+    public function destroy(Interventions $intervention): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateinterventionsRequest $request, interventions $interventions)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(interventions $interventions)
-    {
-        //
+        $intervention->delete();
+        return response()->json(null, 204);
     }
 }
