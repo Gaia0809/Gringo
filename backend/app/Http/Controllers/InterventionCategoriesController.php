@@ -2,65 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\intervention_categories;
+use App\Models\InterventionCategory;
 use App\Http\Requests\Storeintervention_categoriesRequest;
 use App\Http\Requests\Updateintervention_categoriesRequest;
+use Illuminate\Http\JsonResponse;
 
 class InterventionCategoriesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $allCategories = InterventionCategory::all();
+        return response()->json($allCategories);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(Storeintervention_categoriesRequest $request): JsonResponse
     {
-        //
+        $newCategory = InterventionCategory::create($request->validated());
+        return response()->json($newCategory, 210);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Storeintervention_categoriesRequest $request)
+    public function show(InterventionCategory $interventionCategory): JsonResponse
     {
-        //
+        return response()->json($interventionCategory);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(intervention_categories $intervention_categories)
+    public function update(Updateintervention_categoriesRequest $request, InterventionCategory $interventionCategory): JsonResponse
     {
-        //
+        $interventionCategory->update($request->validated());
+        return response()->json($interventionCategory);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(intervention_categories $intervention_categories)
+    public function destroy(InterventionCategory $interventionCategory): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Updateintervention_categoriesRequest $request, intervention_categories $intervention_categories)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(intervention_categories $intervention_categories)
-    {
-        //
+        $interventionCategory->delete();
+        return response()->json(null, 204);
     }
 }

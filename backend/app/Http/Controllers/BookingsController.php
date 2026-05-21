@@ -2,65 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\bookings;
+use App\Models\Bookings;
 use App\Http\Requests\StorebookingsRequest;
 use App\Http\Requests\UpdatebookingsRequest;
+use Illuminate\Http\JsonResponse;
 
 class BookingsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $allBookings = Bookings::with(['user', 'vehicle'])->get();
+        return response()->json($allBookings);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StorebookingsRequest $request): JsonResponse
     {
-        //
+        $newBooking = Bookings::create($request->validated());
+        return response()->json($newBooking, 210);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorebookingsRequest $request)
+    public function show(Bookings $booking): JsonResponse
     {
-        //
+        return response()->json($booking->load(['user', 'vehicle']));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(bookings $bookings)
+    public function update(UpdatebookingsRequest $request, Bookings $booking): JsonResponse
     {
-        //
+        $booking->update($request->validated());
+        return response()->json($booking);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(bookings $bookings)
+    public function destroy(Bookings $booking): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatebookingsRequest $request, bookings $bookings)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(bookings $bookings)
-    {
-        //
+        $booking->delete();
+        return response()->json(null, 204);
     }
 }

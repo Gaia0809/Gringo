@@ -1,11 +1,29 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
+import api from './api' // Importiamo l'istanza configurata
 
 function App() {
   const [count, setCount] = useState(0)
+  const [vehicles, setVehicles] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    // Esempio di chiamata API al backend
+    api.get('/vehicles')
+      .then(response => {
+        setVehicles(response.data)
+        setLoading(false)
+      })
+      .catch(error => {
+        console.error('Errore nel caricamento dei veicoli:', error)
+        setError(error.message)
+        setLoading(false)
+      })
+  }, [])
 
   return (
     <>
@@ -16,9 +34,10 @@ function App() {
           <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
         <div>
-          <h1>Get started</h1>
+          <h1>Gringo API Connected</h1>
+          {error && <p style={{color: 'red'}}>Errore: {error}</p>}
           <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+            Veicoli trovati nel database: {loading ? 'Caricamento...' : vehicles.length}
           </p>
         </div>
         <button

@@ -2,65 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\users;
+use App\Models\Users;
 use App\Http\Requests\StoreusersRequest;
 use App\Http\Requests\UpdateusersRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $allUsers = Users::with('role')->get();
+        return response()->json($allUsers);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreusersRequest $request): JsonResponse
     {
-        //
+        $validated = $request->validated();
+        if (isset($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        }
+        $newUser = Users::create($validated);
+        return response()->json($newUser, 210);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreusersRequest $request)
+    public function show(Users $user): JsonResponse
     {
-        //
+        return response()->json($user->load('role'));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(users $users)
+    public function update(UpdateusersRequest $request, Users $user): JsonResponse
     {
-        //
+        $validated = $request->validated();
+        if (isset($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        }
+        $user->update($validated);
+        return response()->json($user);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(users $users)
+    public function destroy(Users $user): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateusersRequest $request, users $users)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(users $users)
-    {
-        //
+        $user->delete();
+        return response()->json(null, 204);
     }
 }

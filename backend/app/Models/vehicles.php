@@ -24,6 +24,36 @@ use HasFactory;
         'co2_saved',
     ];
 
+    protected $with = ['station'];
+
+    protected $appends = ['coordinates'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($vehicle) {
+            if ($vehicle->in_movement) {
+                // Se si muove, non ha una stazione
+                $vehicle->station_id = null;
+            } else {
+                // Se è fermo in una stazione, la posizione è null (ereditata dalla stazione)
+                $vehicle->position = null;
+            }
+        });
+    }
+
+    public function getCoordinatesAttribute()
+    {
+        $rawPosition = $this->in_movement ? $this->position : ($this->station ? $this->station->position : null);
+
+        if (!$rawPosition) {
+            return null;
+        }
+
+        return array_map('floatval', explode(',', $rawPosition));
+    }
+
     // Relazione con il Modello del veicolo
     public function vehicleModel()
     {

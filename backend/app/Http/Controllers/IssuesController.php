@@ -2,65 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\issues;
+use App\Models\Issues;
 use App\Http\Requests\StoreissuesRequest;
 use App\Http\Requests\UpdateissuesRequest;
+use Illuminate\Http\JsonResponse;
 
 class IssuesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $allIssues = Issues::with(['booking', 'interventions'])->get();
+        return response()->json($allIssues);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreissuesRequest $request): JsonResponse
     {
-        //
+        $newIssue = Issues::create($request->validated());
+        return response()->json($newIssue, 210);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreissuesRequest $request)
+    public function show(Issues $issue): JsonResponse
     {
-        //
+        return response()->json($issue->load(['booking', 'interventions']));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(issues $issues)
+    public function update(UpdateissuesRequest $request, Issues $issue): JsonResponse
     {
-        //
+        $issue->update($request->validated());
+        return response()->json($issue);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(issues $issues)
+    public function destroy(Issues $issue): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateissuesRequest $request, issues $issues)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(issues $issues)
-    {
-        //
+        $issue->delete();
+        return response()->json(null, 204);
     }
 }

@@ -2,11 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\interventions;
+use App\Models\Interventions;
+use App\Models\InterventionCategory;
+use App\Models\Issues;
+use App\Models\InterventionStatuses;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<interventions>
+ * @extends Factory<Interventions>
  */
 class InterventionsFactory extends Factory
 {
@@ -18,7 +21,12 @@ class InterventionsFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'category_id' => InterventionCategory::inRandomOrder()->first()?->id ?? InterventionCategory::factory(),
+            'issue_id' => Issues::inRandomOrder()->first()?->id,
+            'title' => $this->faker->sentence(),
+            'description' => $this->faker->paragraph(),
+            'status_id' => InterventionStatuses::inRandomOrder()->first()?->id ?? InterventionStatuses::factory(),
+            'planned_date' => $this->faker->dateTimeBetween('now', '+1 month'),
         ];
     }
 }

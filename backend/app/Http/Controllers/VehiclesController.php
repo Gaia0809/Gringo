@@ -2,65 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\vehicles;
+use App\Models\Vehicles;
 use App\Http\Requests\StorevehiclesRequest;
 use App\Http\Requests\UpdatevehiclesRequest;
+use Illuminate\Http\JsonResponse;
 
 class VehiclesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $allVehicles = Vehicles::with(['vehicleModel', 'status', 'station'])->get();
+        return response()->json($allVehicles);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StorevehiclesRequest $request): JsonResponse
     {
-        //
+        $newVehicle = Vehicles::create($request->validated());
+        return response()->json($newVehicle, 210);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorevehiclesRequest $request)
+    public function show(Vehicles $vehicle): JsonResponse
     {
-        //
+        return response()->json($vehicle->load(['vehicleModel', 'status', 'station']));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(vehicles $vehicles)
+    public function update(UpdatevehiclesRequest $request, Vehicles $vehicle): JsonResponse
     {
-        //
+        $vehicle->update($request->validated());
+        return response()->json($vehicle);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(vehicles $vehicles)
+    public function destroy(Vehicles $vehicle): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatevehiclesRequest $request, vehicles $vehicles)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(vehicles $vehicles)
-    {
-        //
+        $vehicle->delete();
+        return response()->json(null, 204);
     }
 }

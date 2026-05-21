@@ -2,65 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\statuses;
+use App\Models\Status;
 use App\Http\Requests\StorestatusesRequest;
 use App\Http\Requests\UpdatestatusesRequest;
+use Illuminate\Http\JsonResponse;
 
 class StatusesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $allStatuses = Status::all();
+        return response()->json($allStatuses);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StorestatusesRequest $request): JsonResponse
     {
-        //
+        $newStatus = Status::create($request->validated());
+        return response()->json($newStatus, 210);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorestatusesRequest $request)
+    public function show(Status $status): JsonResponse
     {
-        //
+        return response()->json($status);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(statuses $statuses)
+    public function update(UpdatestatusesRequest $request, Status $status): JsonResponse
     {
-        //
+        $status->update($request->validated());
+        return response()->json($status);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(statuses $statuses)
+    public function destroy(Status $status): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatestatusesRequest $request, statuses $statuses)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(statuses $statuses)
-    {
-        //
+        $status->delete();
+        return response()->json(null, 204);
     }
 }
