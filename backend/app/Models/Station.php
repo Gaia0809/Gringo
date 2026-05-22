@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\VehicleTypes;
+use App\Models\VehicleType;
 use App\Models\Status;
 
-class Stations extends Model
+class Station extends Model
 {
     use HasFactory;
     protected $table = 'stations';
@@ -26,7 +26,7 @@ class Stations extends Model
 
     public function vehicleType()
     {
-        return $this->belongsTo(VehicleTypes::class, 'vehicle_type_id');
+        return $this->belongsTo(VehicleType::class, 'vehicle_type_id');
     }
 
     public function status()

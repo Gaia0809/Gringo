@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Issues extends Model
+class Issue extends Model
 {
-    /** @use HasFactory<\Database\Factories\IssuesFactory> */
+    /** @use HasFactory<\Database\Factories\IssueFactory> */
     use HasFactory;
 
     protected $table = 'issues';
@@ -25,16 +25,16 @@ class Issues extends Model
 
     public function booking()
     {
-        return $this->belongsTo(Bookings::class, 'booking_id');
+        return $this->belongsTo(Booking::class, 'booking_id');
     }
 
     public function assignedTo()
     {
-        return $this->belongsTo(Users::class, 'assigned_to');
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 
     public function interventions()
     {
-        return $this->hasMany(Interventions::class, 'issue_id');
+        return $this->hasMany(Intervention::class, 'issue_id');
     }
 }

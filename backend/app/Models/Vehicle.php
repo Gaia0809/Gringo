@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\VehicleModels;
+use App\Models\VehicleModel;
 use App\Models\Status;
-use App\Models\Stations;
+use App\Models\Station;
 
-class Vehicles extends Model
+class Vehicle extends Model
 {
 use HasFactory;
 
@@ -57,7 +57,7 @@ use HasFactory;
     // Relazione con il Modello del veicolo
     public function vehicleModel()
     {
-        return $this->belongsTo(VehicleModels::class, 'model_id');
+        return $this->belongsTo(VehicleModel::class, 'model_id');
     }
 
     // Relazione con lo Stato (Disponibile, In Manutenzione, ecc.)
@@ -69,6 +69,6 @@ use HasFactory;
     // Relazione con la Stazione
     public function station()
     {
-        return $this->belongsTo(Stations::class);
+        return $this->belongsTo(Station::class);
     }
 }
