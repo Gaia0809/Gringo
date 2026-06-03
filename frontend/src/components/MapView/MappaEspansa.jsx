@@ -20,6 +20,33 @@ export default function MappaEspansa({ onClose }) {
     <div className="fullscreen-map-container">
       <div className="fullscreen-map-bg">
         
+        {/* FILTRI DI RICERCA FLUTTUANTI IN ALTO A SINISTRA (Anche a schermo intero!) */}
+        <div style={{
+          position: 'absolute',
+          top: '20px',
+          left: '20px',
+          zIndex: 50,
+          display: 'flex',
+          gap: '12px',
+          alignItems: 'center'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#ffffff', padding: '8px 16px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: '1px solid #e5e7eb' }}>
+            <span style={{ marginRight: '8px', color: '#9ca3af' }}>🔍</span>
+            <input 
+              type="text" 
+              placeholder="Cerca ID, Targa, Stazione" 
+              style={{ border: 'none', outline: 'none', fontSize: '14px', fontFamily: "'Outfit', sans-serif", width: '180px' }} 
+            />
+          </div>
+          <select style={{ padding: '8px 16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '14px', fontFamily: "'Outfit', sans-serif", outline: 'none', cursor: 'pointer' }}>
+            <option>Ecosistema</option>
+          </select>
+          <select style={{ padding: '8px 16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '14px', fontFamily: "'Outfit', sans-serif", outline: 'none', cursor: 'pointer' }}>
+            <option>Stato</option>
+          </select>
+        </div>
+
+        {/* Componente Maplibre Espanso */}
         <Map
           {...viewState}
           onMove={evt => setViewState(evt.viewState)}
@@ -38,8 +65,8 @@ export default function MappaEspansa({ onClose }) {
           ))}
         </Map>
 
-        {/* Legenda Flottante */}
-        <div className="floating-legend" style={{ zIndex: 10 }}>
+        {/* Legenda Flottante Spostata in basso a sinistra per non sovrapporsi ai filtri */}
+        <div className="floating-legend" style={{ zIndex: 10, top: 'auto', bottom: '20px', left: '20px' }}>
           <h4>Legenda</h4>
           <ul>
             <li><span style={{ color: '#22c55e' }}>●</span> Attivi</li>
@@ -53,7 +80,7 @@ export default function MappaEspansa({ onClose }) {
         <button className="minimize-btn" onClick={onClose} style={{ zIndex: 10 }}>🗗</button>
       </div>
 
-      {/* SIDEBAR DI DESTRA VETRATA */}
+      {/* SIDEBAR DI DESTRA VETRATA ORIGINALE */}
       <div className="map-sidebar">
         <div className="sub-nav">
           <button className={subTab === 'Ecosistema' ? 'active' : ''} onClick={() => setSubTab('Ecosistema')}>Vista Ecosistema</button>

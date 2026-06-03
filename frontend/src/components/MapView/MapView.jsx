@@ -20,28 +20,56 @@ export default function MapView({ onExpand }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1, fontFamily: "'Outfit', sans-serif" }}>
-      {/* KPI Panel Superiori */}
+      
+      {/* KPI Panel Superiori originali */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '15px' }}>
-        <div className="card" style={{ padding: '12px', borderTop: '3px solid #dc2626' }}>
+        <div className="card" style={{ padding: '12px', borderTop: '3px solid #dc2626', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
           <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#dc2626' }}>ALERT BATTERIA STAZIONI &lt; 15%</div>
           <div style={{ display: 'flex', fontSize: '13px', marginTop: '5px', gap: '20px' }}>
             <span>Stazione - SD-12 <strong style={{ color: '#dc2626' }}>8%</strong></span>
             <span>Stazione - CF-11 <strong style={{ color: '#dc2626' }}>12%</strong></span>
           </div>
         </div>
-        <div className="card" style={{ padding: '12px', textAlign: 'center' }}>
+        <div className="card" style={{ padding: '12px', textAlign: 'center', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
           <div style={{ fontSize: '11px', color: '#666' }}>Batteria Media</div>
           <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e' }}>85%</div>
         </div>
-        <div className="card" style={{ padding: '12px', textAlign: 'center' }}>
+        <div className="card" style={{ padding: '12px', textAlign: 'center', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
           <div style={{ fontSize: '11px', color: '#666' }}>In Movimento</div>
           <div style={{ fontSize: '20px', fontWeight: 'bold' }}>92/150</div>
         </div>
       </div>
 
-      {/* Mappa Reale */}
-      <div className="card" style={{ flex: 1, position: 'relative', overflow: 'hidden', padding: 0, minHeight: '400px' }}>
+      {/* Box Mappa Reale */}
+      <div className="card" style={{ flex: 1, position: 'relative', overflow: 'hidden', padding: 0, minHeight: '400px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
         
+        {/* FILTRI DI RICERCA FLUTTUANTI SOVRAPPOSTI */}
+        <div style={{
+          position: 'absolute',
+          top: '20px',
+          left: '20px',
+          zIndex: 10,
+          display: 'flex',
+          gap: '12px',
+          alignItems: 'center'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#ffffff', padding: '8px 16px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #e5e7eb' }}>
+            <span style={{ marginRight: '8px', color: '#9ca3af' }}>🔍</span>
+            <input 
+              type="text" 
+              placeholder="Cerca ID, Targa, Stazione" 
+              style={{ border: 'none', outline: 'none', fontSize: '14px', fontFamily: "'Outfit', sans-serif", width: '180px' }} 
+            />
+          </div>
+          <select style={{ padding: '8px 16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', fontSize: '14px', fontFamily: "'Outfit', sans-serif", outline: 'none', cursor: 'pointer' }}>
+            <option>Ecosistema</option>
+          </select>
+          <select style={{ padding: '8px 16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', fontSize: '14px', fontFamily: "'Outfit', sans-serif", outline: 'none', cursor: 'pointer' }}>
+            <option>Stato</option>
+          </select>
+        </div>
+
+        {/* Componente Maplibre */}
         <Map
           {...viewState}
           onMove={evt => setViewState(evt.viewState)}
@@ -85,7 +113,7 @@ export default function MapView({ onExpand }) {
           🗖
         </button>
 
-        {/* Tooltip */}
+        {/* Tooltip Hover */}
         {selectedMarker && (
           <div style={{
             position: 'absolute', bottom: '60px', right: '15px',
