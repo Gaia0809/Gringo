@@ -1,3 +1,4 @@
+@import "tailwindcss";
 :root {
   --bg-dashboard: #f4f6f8;
   --bg-card: #ffffff;
@@ -25,5 +26,4 @@ body {
   color: var(--text-dark);
 }
 
-/* Direttiva corretta e ufficiale per Tailwind v4 */
-@import "tailwindcss";
+
