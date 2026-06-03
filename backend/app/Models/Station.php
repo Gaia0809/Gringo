@@ -13,6 +13,17 @@ class Stations extends Model
     protected $table = 'stations';
     protected $fillable = ['name', 'vehicle_type_id', 'position', 'capacity', 'status_id'];
 
+    protected $appends = ['coordinates'];
+
+    public function getCoordinatesAttribute()
+    {
+        if (!$this->position) {
+            return null;
+        }
+
+        return array_map('floatval', explode(',', $this->position));
+    }
+
     public function vehicleType()
     {
         return $this->belongsTo(VehicleTypes::class, 'vehicle_type_id');

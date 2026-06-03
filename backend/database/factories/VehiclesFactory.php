@@ -13,21 +13,24 @@ class VehiclesFactory extends Factory
 
     public function definition(): array
     {
+        $inMovement = $this->faker->boolean(20);
+
         return [
             'model_id' => VehicleModels::inRandomOrder()->first()->id,
             
             'license_plate' => strtoupper($this->faker->unique()->bothify('??###??')), 
             
-            'position' => $this->faker->latitude() . ', ' . $this->faker->longitude(),
+            // Se in movimento ha una posizione, altrimenti null (usa quella della stazione)
+            'position' => $inMovement ? $this->faker->latitude() . ', ' . $this->faker->longitude() : null,
             
             'status_id' => Status::inRandomOrder()->first()->id,
             
-            'in_movement' => $this->faker->boolean(20), 
+            'in_movement' => $inMovement, 
             
             'battery_percentage' => $this->faker->numberBetween(10, 100),
             
-            // Assegna una stazione a caso
-            'station_id' => Stations::inRandomOrder()->first()->id,
+            // Se in movimento, non può essere in una stazione
+            'station_id' => $inMovement ? null : Stations::inRandomOrder()->first()->id,
             
             // Chilometraggio e CO2 risparmiata casuali
             'km_total' => $this->faker->numberBetween(0, 50000),
