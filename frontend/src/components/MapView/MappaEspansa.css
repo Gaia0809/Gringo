@@ -1,0 +1,180 @@
+.fullscreen-map-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  z-index: 9999;
+  font-family: 'Outfit', sans-serif;
+}
+
+.fullscreen-map-bg {
+  flex: 1;
+  position: relative;
+  background-color: #cbd5e1;
+}
+
+/* Legenda Flottante Trasparente */
+.floating-legend {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  width: 160px;
+}
+.floating-legend h4 { margin-bottom: 8px; font-size: 14px; }
+.floating-legend ul { list-style: none; padding: 0; }
+.floating-legend li { font-size: 13px; margin-bottom: 6px; display: flex; gap: 8px; align-items: center;}
+
+.minimize-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Sidebar Destra */
+.map-sidebar {
+  width: 360px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-left: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: -5px 0 25px rgba(0,0,0,0.05);
+}
+
+.sub-nav {
+  display: flex;
+  background: #e2e8f0;
+  padding: 4px;
+  border-radius: 20px;
+  gap: 2px;
+}
+.sub-nav button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 6px 4px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #475569;
+}
+.sub-nav button.active {
+  background: #fff;
+  color: #1e293b;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.sidebar-search {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  outline: none;
+}
+
+.sidebar-dynamic-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Elementi del Form e liste */
+.form-container h4, .section-title {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #1e293b;
+}
+.form-input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  margin-bottom: 10px;
+}
+.submit-btn {
+  width: 100%;
+  background: #14532d;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Card Grandi per Interventi */
+.large-ticket-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  margin-bottom: 12px;
+}
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+.ticket-body p {
+  font-size: 12px;
+  color: #334155;
+  margin: 4px 0 10px 0;
+}
+.action-btn {
+  width: 100%;
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.action-btn.green { background: #14532d; color: #fff; }
+.action-btn.orange { background: #d97706; color: #fff; }
+
+.mini-ticket {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+.status-badge {
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: bold;
+}
+.status-badge.red { background: #fee2e2; color: #dc2626; }
+.status-badge.orange { background: #fef3c7; color: #d97706; }
+.new-ticket-btn {
+  width: 100%;
+  background: #fff;
+  border: 1px dashed #cbd5e1;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  cursor: pointer;
+}
