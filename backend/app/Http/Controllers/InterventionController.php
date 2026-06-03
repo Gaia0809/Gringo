@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Interventions;
-use App\Http\Requests\StoreinterventionsRequest;
-use App\Http\Requests\UpdateinterventionsRequest;
+use App\Models\Intervention;
+use App\Http\Requests\StoreInterventionRequest;
+use App\Http\Requests\UpdateInterventionRequest;
 use Illuminate\Http\JsonResponse;
 
-class InterventionsController extends Controller
+class InterventionController extends Controller
 {
     public function index(): JsonResponse
     {
@@ -18,7 +18,7 @@ class InterventionsController extends Controller
         return response()->json($interventions->map(fn($i) => $this->format($i)));
     }
 
-    public function store(StoreinterventionsRequest $request): JsonResponse
+    public function store(StoreInterventionRequest $request): JsonResponse
     {
         $statusId = InterventionStatuses::where('name', 'Aperti')->value('id');
 

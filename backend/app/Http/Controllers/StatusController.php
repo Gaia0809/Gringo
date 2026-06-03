@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Status;
-use App\Http\Requests\StorestatusesRequest;
-use App\Http\Requests\UpdatestatusesRequest;
+use App\Http\Requests\StoreStatusRequest;
+use App\Http\Requests\UpdateStatusRequest;
 use Illuminate\Http\JsonResponse;
 
-class StatusesController extends Controller
+class StatusController extends Controller
 {
     public function index(): JsonResponse
     {
@@ -15,7 +15,7 @@ class StatusesController extends Controller
         return response()->json($allStatuses);
     }
 
-    public function store(StorestatusesRequest $request): JsonResponse
+    public function store(StoreStatusRequest $request): JsonResponse
     {
         $newStatus = Status::create($request->validated());
         return response()->json($newStatus, 210);
@@ -26,7 +26,7 @@ class StatusesController extends Controller
         return response()->json($status);
     }
 
-    public function update(UpdatestatusesRequest $request, Status $status): JsonResponse
+    public function update(UpdateStatusRequest $request, Status $status): JsonResponse
     {
         $status->update($request->validated());
         return response()->json($status);

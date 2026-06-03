@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Interventions extends Model
+class Intervention extends Model
 {
-    /** @use HasFactory<\Database\Factories\InterventionsFactory> */
+    /** @use HasFactory<\Database\Factories\InterventionFactory> */
     use HasFactory;
 
     protected $table = 'interventions';
@@ -32,11 +32,11 @@ class Interventions extends Model
 
     public function issue()
     {
-        return $this->belongsTo(Issues::class, 'issue_id');
+        return $this->belongsTo(Issue::class, 'issue_id');
     }
 
     public function status()
     {
-        return $this->belongsTo(InterventionStatuses::class, 'status_id');
+        return $this->belongsTo(InterventionStatus::class, 'status_id');
     }
 }

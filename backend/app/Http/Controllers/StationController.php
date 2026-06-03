@@ -2,37 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Stations;
-use App\Http\Requests\StorestationsRequest;
-use App\Http\Requests\UpdatestationsRequest;
+use App\Models\Station;
+use App\Http\Requests\StoreStationRequest;
+use App\Http\Requests\UpdateStationRequest;
 use Illuminate\Http\JsonResponse;
 
-class StationsController extends Controller
+class StationController extends Controller
 {
     public function index(): JsonResponse
     {
-        $allStations = Stations::with(['vehicleType', 'status'])->get();
+        $allStations = Station::with(['vehicleType', 'status'])->get();
         return response()->json($allStations);
     }
 
-    public function store(StorestationsRequest $request): JsonResponse
+    public function store(StoreStationRequest $request): JsonResponse
     {
-        $newStation = Stations::create($request->validated());
+        $newStation = Station::create($request->validated());
         return response()->json($newStation, 210);
     }
 
-    public function show(Stations $station): JsonResponse
+    public function show(Station $station): JsonResponse
     {
         return response()->json($station->load(['vehicleType', 'status']));
     }
 
-    public function update(UpdatestationsRequest $request, Stations $station): JsonResponse
+    public function update(UpdateStationRequest $request, Station $station): JsonResponse
     {
         $station->update($request->validated());
         return response()->json($station);
     }
 
-    public function destroy(Stations $station): JsonResponse
+    public function destroy(Station $station): JsonResponse
     {
         $station->delete();
         return response()->json(null, 204);

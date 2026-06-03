@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Issues;
+use App\Models\Issue;
 use Illuminate\Database\Seeder;
 
 class IssuesSeeder extends Seeder
@@ -12,6 +12,6 @@ class IssuesSeeder extends Seeder
      */
     public function run(): void
     {
-        Issues::factory()->count(10)->create();
+        Issue::factory()->count(10)->create();
     }
 }

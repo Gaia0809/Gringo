@@ -4,20 +4,20 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Vehicles;
-use App\Models\VehicleTypes;
-use App\Models\VehicleModels;
+use App\Models\Vehicle;
+use App\Models\VehicleType;
+use App\Models\VehicleModel;
 use App\Models\Status;
-use App\Models\Stations;
+use App\Models\Station;
 class VehiclesSeeder extends Seeder
 {
     public function run(): void
     {
-       $vehicleTypes = VehicleTypes::all();
+       $vehicleTypes = VehicleType::all();
 
         foreach ($vehicleTypes as $type) {
             
-            $modelsForThisType = VehicleModels::where('vehicle_type_id', $type->id)->get();
+            $modelsForThisType = VehicleModel::where('vehicle_type_id', $type->id)->get();
 
             for ($i = 0; $i < 9; $i++) {
                 
@@ -29,7 +29,7 @@ class VehiclesSeeder extends Seeder
                     default => strtoupper(fake()->unique()->bothify('??###??')),
                 };
 
-                Vehicles::factory()->create([
+                Vehicle::factory()->create([
                     'model_id' => $modelsForThisType->random()->id,
                     'license_plate' => $licensePlate, // Sovrascriviamo la targa della Factory!
                 ]);

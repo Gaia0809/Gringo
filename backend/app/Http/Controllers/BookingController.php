@@ -2,37 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bookings;
-use App\Http\Requests\StorebookingsRequest;
-use App\Http\Requests\UpdatebookingsRequest;
+use App\Models\Booking;
+use App\Http\Requests\StoreBookingRequest;
+use App\Http\Requests\UpdateBookingRequest;
 use Illuminate\Http\JsonResponse;
 
-class BookingsController extends Controller
+class BookingController extends Controller
 {
     public function index(): JsonResponse
     {
-        $allBookings = Bookings::with(['user', 'vehicle'])->get();
+        $allBookings = Booking::with(['user', 'vehicle'])->get();
         return response()->json($allBookings);
     }
 
-    public function store(StorebookingsRequest $request): JsonResponse
+    public function store(StoreBookingRequest $request): JsonResponse
     {
-        $newBooking = Bookings::create($request->validated());
+        $newBooking = Booking::create($request->validated());
         return response()->json($newBooking, 210);
     }
 
-    public function show(Bookings $booking): JsonResponse
+    public function show(Booking $booking): JsonResponse
     {
         return response()->json($booking->load(['user', 'vehicle']));
     }
 
-    public function update(UpdatebookingsRequest $request, Bookings $booking): JsonResponse
+    public function update(UpdateBookingRequest $request, Booking $booking): JsonResponse
     {
         $booking->update($request->validated());
         return response()->json($booking);
     }
 
-    public function destroy(Bookings $booking): JsonResponse
+    public function destroy(Booking $booking): JsonResponse
     {
         $booking->delete();
         return response()->json(null, 204);
