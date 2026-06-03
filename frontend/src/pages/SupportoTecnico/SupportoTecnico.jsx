@@ -28,8 +28,6 @@ const SupportoTecnico = () => {
 
   return (
     <div className="min-h-screen bg-[#f4f6fb] p-6 font-sans">
-
-      {/* Top bar */}
       <div className="flex items-center justify-between mb-8">
         <Header activePage="Supporto tecnico" />
         <div className="flex items-center gap-3">

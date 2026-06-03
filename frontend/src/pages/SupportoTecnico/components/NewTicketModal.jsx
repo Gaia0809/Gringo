@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Button from '../../../components/Button.jsx'
-import { MOCK_VEHICLES, MOCK_STATIONS, MOCK_TECHNICIANS } from '../mockData.js'
+import SearchableSelect from './SearchableSelect.jsx'
+import api from '../../../services/Api.js'
 
 const Field = ({ label, children }) => (
   <div className="flex flex-col gap-1.5">
@@ -12,28 +13,48 @@ const Field = ({ label, children }) => (
 const inputClass = "p-2.5 border border-slate-200 rounded-xl outline-none focus:border-slate-400 transition-colors text-sm bg-white"
 
 const NewTicketModal = ({ open, onClose, onSave }) => {
-  const [vehicle, setVehicle] = useState('')
+  const [vehicleId, setVehicleId] = useState('')
   const [title, setTitle] = useState('')
-  const [station, setStation] = useState('')
+  const [stationId, setStationId] = useState('')
   const [priority, setPriority] = useState('Media')
-  const [technician, setTechnician] = useState('')
+  const [userId, setUserId] = useState('')
   const [note, setNote] = useState('')
 
+  const [vehicles, setVehicles] = useState([])
+  const [stations, setStations] = useState([])
+  const [technicians, setTechnicians] = useState([])
+
+  useEffect(() => {
+    if (!open) return
+    Promise.all([
+      api.get('/vehicles'),
+      api.get('/stations'),
+      api.get('/technicians'),
+    ]).then(([v, s, t]) => {
+      setVehicles(v.map(x => ({ id: x.id, label: x.license_plate })))
+      setStations(s.map(x => ({ id: x.id, label: x.name })))
+      setTechnicians(t.map(x => ({ id: x.id, label: x.name })))
+    }).catch(() => {})
+  }, [open])
+
   if (!open) return null
+
+  const reset = () => {
+    setVehicleId(''); setTitle(''); setStationId('')
+    setPriority('Media'); setUserId(''); setNote('')
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
     onSave({
-      status: 'Aperti',
-      vehicle: vehicle || 'Asset sconosciuto',
       title: title || 'Nuovo ticket',
-      station,
+      vehicle_id: vehicleId ? Number(vehicleId) : null,
+      station_id: stationId ? Number(stationId) : null,
+      technician_id: userId ? Number(userId) : null,
       priority,
-      technician: technician || 'Non assegnato',
-      notes: note.trim() ? [{ id: 1, text: note.trim() }] : [],
-      createdAt: 'Adesso',
+      note: note.trim() || null,
     })
-    setVehicle(''); setTitle(''); setStation(''); setPriority('Media'); setTechnician(''); setNote('')
+    reset()
   }
 
   return (
@@ -47,7 +68,7 @@ const NewTicketModal = ({ open, onClose, onSave }) => {
             </svg>
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
@@ -63,19 +84,19 @@ const NewTicketModal = ({ open, onClose, onSave }) => {
             </div>
 
             <Field label="Veicolo / Asset">
-              <select value={vehicle} onChange={e => setVehicle(e.target.value)} className={inputClass}>
-                <option value="">Seleziona asset</option>
-                {MOCK_VEHICLES.map(v => (
-                  <option key={v.id} value={v.license_plate}>{v.license_plate}</option>
-                ))}
-              </select>
+              <SearchableSelect
+                value={vehicleId}
+                onChange={setVehicleId}
+                options={vehicles}
+                placeholder="Seleziona asset"
+              />
             </Field>
 
             <Field label="Stazione">
-              <select value={station} onChange={e => setStation(e.target.value)} className={inputClass}>
+              <select value={stationId} onChange={e => setStationId(e.target.value)} className={inputClass}>
                 <option value="">Seleziona stazione</option>
-                {MOCK_STATIONS.map(s => (
-                  <option key={s.id} value={s.name}>{s.name}</option>
+                {stations.map(s => (
+                  <option key={s.id} value={s.id}>{s.label}</option>
                 ))}
               </select>
             </Field>
@@ -89,12 +110,12 @@ const NewTicketModal = ({ open, onClose, onSave }) => {
             </Field>
 
             <Field label="Tecnico">
-              <select value={technician} onChange={e => setTechnician(e.target.value)} className={inputClass}>
-                <option value="">Non assegnato</option>
-                {MOCK_TECHNICIANS.map(t => (
-                  <option key={t.id} value={t.name}>{t.name}</option>
-                ))}
-              </select>
+              <SearchableSelect
+                value={userId}
+                onChange={setUserId}
+                options={technicians}
+                placeholder="Non assegnato"
+              />
             </Field>
 
             <div className="col-span-2">
@@ -115,7 +136,6 @@ const NewTicketModal = ({ open, onClose, onSave }) => {
             <Button type="submit" variant="primary">Crea ticket</Button>
           </div>
         </form>
-
       </div>
     </div>
   )

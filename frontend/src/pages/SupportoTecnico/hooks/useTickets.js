@@ -1,19 +1,57 @@
-import { useState, useMemo } from 'react'
-import { MOCK_TICKETS } from '../mockData.js'
+import { useState, useEffect, useMemo } from 'react'
+import api from '../../../services/Api.js'
+
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24))
+
+  if (diffDays === 0) {
+    return `Oggi ${date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`
+  } else if (diffDays === 1) {
+    return `Ieri ${date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`
+  } else if (diffDays < 7) {
+    return `${diffDays} giorni fa`
+  } else if (diffDays < 14) {
+    return '1 settimana fa'
+  } else {
+    return date.toLocaleDateString('it-IT')
+  }
+}
+
+function mapTicket(i) {
+  return {
+    id: i.id,
+    title: i.title,
+    status: i.status ?? 'Aperti',
+    vehicle: i.vehicle ?? '',
+    vehicle_id: i.vehicle_id,
+    station: i.station ?? '',
+    station_id: i.station_id,
+    priority: i.priority ?? 'Media',
+    technician: i.technician ?? 'Non assegnato',
+    technician_id: i.technician_id,
+    notes: i.notes ?? [],
+    createdAt: formatDate(i.created_at),
+  }
+}
 
 export function useTickets() {
-  const [tickets, setTickets] = useState(MOCK_TICKETS)
+  const [tickets, setTickets] = useState([])
   const [activeStatus, setActiveStatus] = useState('Aperti')
   const [selectedTicketId, setSelectedTicketId] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState(/** @type {Error|null} */ (null))
 
-  // --- Quando il backend sarà pronto, sostituire useState(MOCK_TICKETS) con:
-  // useEffect(() => {
-  //   setLoading(true)
-  //   api.get('/issues').then(data => setTickets(data)).catch(setError).finally(() => setLoading(false))
-  // }, [])
+  useEffect(() => {
+    setLoading(true)
+    api.get('/interventions')
+      .then(data => setTickets(data.map(mapTicket)))
+      .catch(setError)
+      .finally(() => setLoading(false))
+  }, [])
 
   const selectedTicket = useMemo(
     () => tickets.find(t => t.id === selectedTicketId) || null,
@@ -35,46 +73,46 @@ export function useTickets() {
     setSelectedTicketId(prev => prev === ticketId ? null : ticketId)
   }
 
-  const createTicket = (ticketData) => {
-    const nextId = tickets.length > 0 ? Math.max(...tickets.map(t => t.id)) + 1 : 1
-    const newTicket = { ...ticketData, id: nextId }
+  const createTicket = async (ticketData) => {
+    const created = await api.post('/interventions', ticketData)
+    const newTicket = mapTicket(created)
     setTickets(prev => [newTicket, ...prev])
     setSelectedTicketId(newTicket.id)
     setActiveStatus('Aperti')
     setIsModalOpen(false)
   }
 
-  const deleteTicket = (ticketId) => {
-    const updated = tickets.filter(t => t.id !== ticketId)
-    setTickets(updated)
-    if (selectedTicketId === ticketId) {
-      setSelectedTicketId(null)
-    }
+  const deleteTicket = async (ticketId) => {
+    await api.delete(`/interventions/${ticketId}`)
+    setTickets(prev => prev.filter(t => t.id !== ticketId))
+    if (selectedTicketId === ticketId) setSelectedTicketId(null)
   }
 
-  const changeStatus = (ticketId, newStatus) => {
-    setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: newStatus } : t))
-    if (selectedTicketId === ticketId && newStatus !== activeStatus) {
-      setSelectedTicketId(null)
-    }
+  const changeStatus = async (ticketId, newStatus) => {
+    const updated = await api.put(`/interventions/${ticketId}`, { status: newStatus })
+    const mapped = mapTicket(updated)
+    setTickets(prev => prev.map(t => t.id === ticketId ? mapped : t))
+    if (selectedTicketId === ticketId && newStatus !== activeStatus) setSelectedTicketId(null)
   }
 
-  const addNote = (ticketId, noteText) => {
+  const addNote = async (ticketId, noteText) => {
+    const note = await api.post(`/interventions/${ticketId}/notes`, { text: noteText })
     setTickets(prev => prev.map(t => {
       if (t.id !== ticketId) return t
-      const nextNoteId = t.notes.length > 0 ? Math.max(...t.notes.map(n => n.id)) + 1 : 1
-      return { ...t, notes: [...t.notes, { id: nextNoteId, text: noteText }] }
+      return { ...t, notes: [...t.notes, note] }
     }))
   }
 
-  const editNote = (ticketId, noteId, newText) => {
+  const editNote = async (ticketId, noteId, newText) => {
+    const note = await api.put(`/interventions/${ticketId}/notes/${noteId}`, { text: newText })
     setTickets(prev => prev.map(t => {
       if (t.id !== ticketId) return t
-      return { ...t, notes: t.notes.map(n => n.id === noteId ? { ...n, text: newText } : n) }
+      return { ...t, notes: t.notes.map(n => n.id === noteId ? note : n) }
     }))
   }
 
-  const deleteNote = (ticketId, noteId) => {
+  const deleteNote = async (ticketId, noteId) => {
+    await api.delete(`/interventions/${ticketId}/notes/${noteId}`)
     setTickets(prev => prev.map(t => {
       if (t.id !== ticketId) return t
       return { ...t, notes: t.notes.filter(n => n.id !== noteId) }

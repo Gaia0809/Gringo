@@ -13,7 +13,17 @@ class UsersController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(users::select('id', 'name')->get());
+    }
+
+    public function technicians()
+    {
+        return response()->json(
+            users::select('users.id', 'users.name')
+                ->join('roles', 'users.role_id', '=', 'roles.id')
+                ->where('roles.name', 'Technician')
+                ->get()
+        );
     }
 
     /**

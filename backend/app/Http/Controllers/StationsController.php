@@ -13,7 +13,7 @@ class StationsController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(stations::select('id', 'name')->get());
     }
 
     /**

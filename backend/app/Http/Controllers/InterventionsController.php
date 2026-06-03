@@ -3,64 +3,90 @@
 namespace App\Http\Controllers;
 
 use App\Models\interventions;
+use App\Models\InterventionStatuses;
 use App\Http\Requests\StoreinterventionsRequest;
 use App\Http\Requests\UpdateinterventionsRequest;
+use Illuminate\Http\JsonResponse;
 
 class InterventionsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $interventions = interventions::with(['status', 'vehicle', 'station', 'technician', 'notes'])
+            ->latest()
+            ->get();
+
+        return response()->json($interventions->map(fn($i) => $this->format($i)));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreinterventionsRequest $request): JsonResponse
     {
-        //
+        $statusId = InterventionStatuses::where('name', 'Aperti')->value('id');
+
+        $intervention = interventions::create([
+            'title'       => $request->title,
+            'description' => $request->description,
+            'status_id'   => $statusId,
+            'vehicle_id'  => $request->vehicle_id,
+            'station_id'  => $request->station_id,
+            'technician_id'     => $request->technician_id,
+            'priority'    => $request->priority ?? 'Media',
+        ]);
+
+        if ($request->filled('note')) {
+            $intervention->notes()->create(['text' => $request->note]);
+        }
+
+        $intervention->load(['status', 'vehicle', 'station', 'technician', 'notes']);
+
+        return response()->json($this->format($intervention), 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreinterventionsRequest $request)
+    public function show(interventions $intervention): JsonResponse
     {
-        //
+        $intervention->load(['status', 'vehicle', 'station', 'technician', 'notes']);
+
+        return response()->json($this->format($intervention));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(interventions $interventions)
+    public function update(UpdateinterventionsRequest $request, interventions $intervention): JsonResponse
     {
-        //
+        if ($request->has('status')) {
+            $statusId = InterventionStatuses::where('name', $request->status)->value('id');
+            $intervention->status_id = $statusId;
+        }
+
+        $intervention->fill($request->only(['title', 'description', 'vehicle_id', 'station_id', 'technician_id', 'priority']));
+        $intervention->save();
+
+        $intervention->load(['status', 'vehicle', 'station', 'technician', 'notes']);
+
+        return response()->json($this->format($intervention));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(interventions $interventions)
+    public function destroy(interventions $intervention): JsonResponse
     {
-        //
+        $intervention->delete();
+
+        return response()->json(null, 204);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateinterventionsRequest $request, interventions $interventions)
+    private function format(interventions $i): array
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(interventions $interventions)
-    {
-        //
+        return [
+            'id'         => $i->id,
+            'title'      => $i->title,
+            'priority'   => $i->priority ?? 'Media',
+            'status'     => $i->status?->name,
+            'status_id'  => $i->status_id,
+            'vehicle_id' => $i->vehicle_id,
+            'vehicle'    => $i->vehicle?->license_plate,
+            'station_id' => $i->station_id,
+            'station'    => $i->station?->name,
+            'technician_id'    => $i->technician_id,
+            'technician' => $i->technician?->name ?? 'Non assegnato',
+            'notes'      => $i->notes->map(fn($n) => ['id' => $n->id, 'text' => $n->text])->values(),
+            'created_at' => $i->created_at,
+        ];
     }
 }
