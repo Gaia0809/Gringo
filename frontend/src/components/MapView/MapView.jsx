@@ -21,7 +21,7 @@ export default function MapView({ onExpand }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1, fontFamily: "'Outfit', sans-serif" }}>
       
-      {/* KPI Panel Superiori originali */}
+      {/* KPI Panel Superiori */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '15px' }}>
         <div className="card" style={{ padding: '12px', borderTop: '3px solid #dc2626', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
           <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#dc2626' }}>ALERT BATTERIA STAZIONI &lt; 15%</div>
@@ -61,11 +61,21 @@ export default function MapView({ onExpand }) {
               style={{ border: 'none', outline: 'none', fontSize: '14px', fontFamily: "'Outfit', sans-serif", width: '180px' }} 
             />
           </div>
+
           <select style={{ padding: '8px 16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', fontSize: '14px', fontFamily: "'Outfit', sans-serif", outline: 'none', cursor: 'pointer' }}>
             <option>Ecosistema</option>
+            <option>Macchine</option>
+            <option>Biciclette</option>
+            <option>Monopattini</option>
           </select>
+
           <select style={{ padding: '8px 16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', fontSize: '14px', fontFamily: "'Outfit', sans-serif", outline: 'none', cursor: 'pointer' }}>
             <option>Stato</option>
+            <option>Disponibile</option>
+            <option>In uso</option>
+            <option>Guasto</option>
+            <option>Manutenzione</option>
+            <option>Offline</option>
           </select>
         </div>
 
