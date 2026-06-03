@@ -5,3 +5,9 @@ vendor/
 .vscode/
 .idea/
 *.log
+.phpunit.result.cache
+/storage/*.key
+/public/storage
+/public/hot
+/public/build
+auth.json

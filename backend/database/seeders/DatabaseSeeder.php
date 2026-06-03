@@ -28,9 +28,7 @@ class DatabaseSeeder extends Seeder
             InterventionCategoriesSeeder::class,
             InterventionStatusesSeeder::class,
             InterventionsSeeder::class,
-            ReportsSeeder::class,
-            
-
+            // ReportsSeeder::class,
         ]);
 
     }
