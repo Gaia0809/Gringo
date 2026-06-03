@@ -1,76 +1,119 @@
 import { useState } from 'react';
+import LeftColumn from './components/LeftColumn/LeftColumn';
+import MapView from './components/MapView/MapView';
+import Agenda from './components/Agenda/Agenda';
+import MappaEspansa from './components/MapView/MappaEspansa';
+import './App.css';
 
-// COMPONENTI SEGNAPOSTO (Mock) 
-// Servono a far funzionare la navigazione finché ognuno non collegherà la propria pagina reale
-function DashboardMock() { 
-  return <div className="p-8"><h1 className="text-2xl font-bold">📊 Schermata Dashboard (In sviluppo)</h1></div>; 
-}
+// COMPONENTI SEGNAPOSTO DI GAIA (Mock)
 function VeicoliMock() { 
-  return <div className="p-8"><h1 className="text-2xl font-bold">🚗 Schermata Gestione Veicoli (In sviluppo)</h1></div>; 
-}
-function StazioniMock() { 
-  return <div className="p-8"><h1 className="text-2xl font-bold">⛽ Schermata Gestione Stazioni (In sviluppo)</h1></div>; 
-}
-function SupportoMock() { 
-  return <div className="p-8"><h1 className="text-2xl font-bold">🛠️ Schermata Supporto Tecnico (In sviluppo)</h1></div>; 
+  return (
+    <div style={{ padding: '30px', fontFamily: "'Outfit', sans-serif" }}>
+      <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1e293b' }}>🚗 Gestione Veicoli</h1>
+      <p style={{ color: '#64748b', marginTop: '8px' }}>Schermata in sviluppo.</p>
+    </div>
+  ); 
 }
 
-function App() {
-  // La lavagna parte sulla Dashboard come impostazione generale per il team
+function StazioniMock() { 
+  return (
+    <div style={{ padding: '30px', fontFamily: "'Outfit', sans-serif" }}>
+      <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1e293b' }}>⛽ Gestione Stazioni</h1>
+      <p style={{ color: '#64748b', marginTop: '8px' }}>Schermata in sviluppo.</p>
+    </div>
+  ); 
+}
+
+function SupportoMock() { 
+  return (
+    <div style={{ padding: '30px', fontFamily: "'Outfit', sans-serif" }}>
+      <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1e293b' }}>🛠️ Supporto Tecnico</h1>
+      <p style={{ color: '#64748b', marginTop: '8px' }}>Schermata in sviluppo.</p>
+    </div>
+  ); 
+}
+
+export default function App() {
   const [paginaAttiva, setPaginaAttiva] = useState('dashboard');
+  const [isMapExpanded, setIsMapExpanded] = useState(false);
+
+  // Se la mappa è espansa, renderizziamo l'overlay a schermo intero
+  if (isMapExpanded) {
+    return <MappaEspansa onClose={() => setIsMapExpanded(false)} />;
+  }
 
   return (
-    <div className="flex min-h-screen bg-brand-chiaro text-brand-scuro font-sans">
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#f4f6f8', fontFamily: "'Outfit', sans-serif", padding: '24px', gap: '24px' }}>
       
-      {/* SIDEBAR - Il menu laterale sinistro comune */}
-      <aside className="w-64 bg-white border-r border-gray-200 p-6 flex flex-col gap-4">
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-blue-600 tracking-wider">🛞 FLEET APP</h2>
-          <p className="text-xs text-gray-400 font-medium">Esame Finale Frontend</p>
-        </div>
-
-        <nav className="flex flex-col gap-2">
-          {/* Bottone Dashboard */}
+      {/* BARRA SUPERIORE ORIZZONTALE (MENU DI NAVIGAZIONE) */}
+      <header style={{ display: 'flex', justifyContent: 'between', alignItems: 'center', backgroundColor: '#ffffff', padding: '12px 24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+        
+        {/* Gruppo Bottoni di Navigazione */}
+        <div style={{ display: 'flex', gap: '12px', flex: 1 }}>
           <button 
             onClick={() => setPaginaAttiva('dashboard')}
-            className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors
-              ${paginaAttiva === 'dashboard' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+            style={{
+              padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: '600', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+              backgroundColor: paginaAttiva === 'dashboard' ? '#1a1a1a' : '#f1f5f9',
+              color: paginaAttiva === 'dashboard' ? '#ffffff' : '#475569'
+            }}
           >
-             Dashboard
+            Dashboard
           </button>
 
-          {/* Bottone Gestione Veicoli */}
-          <button 
-            onClick={() => setPaginaAttiva('veicoli')}
-            className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors
-              ${paginaAttiva === 'veicoli' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
-          >
-             Gestione Veicoli
-          </button>
-
-          {/* Bottone Gestione Stazioni */}
-          <button 
-            onClick={() => setPaginaAttiva('stazioni')}
-            className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors
-              ${paginaAttiva === 'stazioni' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
-          >
-             Gestione Stazioni
-          </button>
-
-          {/* Bottone Supporto Tecnico */}
           <button 
             onClick={() => setPaginaAttiva('supporto')}
-            className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors
-              ${paginaAttiva === 'supporto' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+            style={{
+              padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: '600', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+              backgroundColor: paginaAttiva === 'supporto' ? '#1a1a1a' : '#f1f5f9',
+              color: paginaAttiva === 'supporto' ? '#ffffff' : '#475569'
+            }}
           >
-             Supporto Tecnico
+            Supporto tecnico
           </button>
-        </nav>
-      </aside>
 
-      {/* CONTENUTO PRINCIPALE DINAMICO */}
-      <main className="flex-1">
-        {paginaAttiva === 'dashboard' && <DashboardMock />}
+          <button 
+            onClick={() => setPaginaAttiva('veicoli')}
+            style={{
+              padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: '600', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+              backgroundColor: paginaAttiva === 'veicoli' ? '#1a1a1a' : '#f1f5f9',
+              color: paginaAttiva === 'veicoli' ? '#ffffff' : '#475569'
+            }}
+          >
+            Gestione veicoli
+          </button>
+
+          <button 
+            onClick={() => setPaginaAttiva('stazioni')}
+            style={{
+              padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: '600', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+              backgroundColor: paginaAttiva === 'stazioni' ? '#1a1a1a' : '#f1f5f9',
+              color: paginaAttiva === 'stazioni' ? '#ffffff' : '#475569'
+            }}
+          >
+            Gestione stazioni
+          </button>
+        </div>
+
+        {/* Selettore e Profilo a Destra */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <select style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', fontFamily: "'Outfit', sans-serif" }}>
+            <option>Settimana</option>
+            <option>Mese</option>
+          </select>
+          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(45deg, #3b82f6, #8b5cf6)', cursor: 'pointer' }} />
+        </div>
+      </header>
+
+      {/* CONTENUTO PRINCIPALE DINAMICO A TUTTO SCHERMO */}
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {paginaAttiva === 'dashboard' && (
+          <div className="dashboard-content" style={{ display: 'flex', gap: '20px', height: '100%', alignItems: 'stretch' }}>
+            <LeftColumn />
+            <MapView onExpand={() => setIsMapExpanded(true)} />
+            <Agenda />
+          </div>
+        )}
         {paginaAttiva === 'veicoli' && <VeicoliMock />}
         {paginaAttiva === 'stazioni' && <StazioniMock />}
         {paginaAttiva === 'supporto' && <SupportoMock />}
@@ -79,5 +122,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
