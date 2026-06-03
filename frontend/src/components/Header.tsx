@@ -5,7 +5,7 @@ const menuItems = [
     { label: 'Gestione stazioni', path: '/stazioni' },
 ]
 
-const Header = ({ activePage }) => (
+const Header = ({ activePage }: { activePage: string }) => (
     <div className="flex flex-wrap items-center gap-2">
         {menuItems.map((item) => (
             <button
