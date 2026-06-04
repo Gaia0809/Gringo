@@ -9,6 +9,11 @@ use Illuminate\Http\JsonResponse;
 
 class RoleController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Role::class, 'role');
+    }
+
     public function index(): JsonResponse
     {
         $allRoles = Role::all();

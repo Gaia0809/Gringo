@@ -9,6 +9,11 @@ use Illuminate\Http\JsonResponse;
 
 class StatusController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Status::class, 'status');
+    }
+
     public function index(): JsonResponse
     {
         $allStatuses = Status::all();

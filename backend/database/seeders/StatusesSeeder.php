@@ -21,6 +21,7 @@ class StatusesSeeder extends Seeder
             'Fuori Area',
             'Rubato',
             'Inattivo',
+            'Prenotato',
         ];
 
         foreach ($statuses as $status) {

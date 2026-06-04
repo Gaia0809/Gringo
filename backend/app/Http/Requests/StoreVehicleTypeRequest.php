@@ -7,21 +7,23 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreVehicleTypeRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
         return [
-            'title'      => 'sometimes|string|max:255',
-            'status'     => 'sometimes|string|exists:intervention_statuses,name',
-            'priority'   => 'sometimes|in:Alta,Media,Bassa',
-            'vehicle_id' => 'sometimes|nullable|exists:vehicles,id',
-            'station_id' => 'sometimes|nullable|exists:stations,id',
-            'technician_id' => 'sometimes|nullable|exists:users,id',
-            'description'=> 'sometimes|nullable|string',
+            //
         ];
     }
 }

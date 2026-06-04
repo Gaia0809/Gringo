@@ -17,4 +17,9 @@ class User extends Model
     {
         return $this->belongsTo(Role::class, 'role_id');
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->role && $this->role->name === 'Admin';
+    }
 }

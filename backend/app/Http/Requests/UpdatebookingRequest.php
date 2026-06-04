@@ -12,18 +12,20 @@ class UpdateBookingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            //
+            'vehicle_id' => 'sometimes|required|exists:vehicles,id',
+            'start_date' => 'sometimes|required|date|after_or_equal:today',
+            'end_date' => 'sometimes|required|date|after:start_date',
         ];
     }
 }
