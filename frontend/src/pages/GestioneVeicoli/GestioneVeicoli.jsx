@@ -1,12 +1,72 @@
 import { useState, useEffect } from 'react';
 import api from '../../api.js';
+import VehicleModal from './components/VehicleModal.jsx';
+
+// Componente interno per l'anello multi-segmento
+function StatusRing({ data, label }) {
+  const total = data.total || 0;
+  const dashArray = 314; // 2 * PI * r (r=50)
+  
+  const segments = [
+    { value: data.disponibile, color: 'var(--color-stato-disponibile)' },
+    { value: data.attivo, color: 'var(--color-stato-attivo)' },
+    { value: data.inricarica, color: 'var(--color-stato-inricarica)' },
+    { value: data.manutenzione, color: 'var(--color-stato-manutenzione)' },
+    { value: data.offline, color: 'var(--color-stato-offline)' },
+    { value: data.guasto, color: 'var(--color-stato-guasto)' },
+    { value: data.rubato, color: 'var(--color-stato-rubato)' },
+  ];
+
+  let currentRotation = 0;
+
+  return (
+    <div className="flex flex-col items-center relative">
+      <svg className="w-32 h-32 transform -rotate-90 overflow-visible">
+        <circle cx="64" cy="64" r="50" stroke="#f3f4f6" strokeWidth="12" fill="transparent" />
+        {total > 0 && segments.map((s, i) => {
+          if (s.value === 0) return null;
+          const percentage = s.value / total;
+          const strokeLength = dashArray * percentage;
+          const rotation = currentRotation;
+          currentRotation += percentage * 360;
+          
+          return (
+            <circle 
+              key={i}
+              cx="64" cy="64" r="50" 
+              stroke={s.color} 
+              strokeWidth="12" 
+              fill="transparent" 
+              strokeDasharray={`${strokeLength} ${dashArray}`} 
+              style={{ 
+                transform: `rotate(${rotation}deg)`, 
+                transformOrigin: '64px 64px',
+                transition: 'all 1s ease-in-out'
+              }}
+            />
+          );
+        })}
+      </svg>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+        <span className="text-xl font-bold block">{total}</span>
+        <span className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">{label}</span>
+      </div>
+    </div>
+  );
+}
 
 export default function GestioneVeicoli() {
   const [veicoli, setVeicoli] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [modalMode, setModalMode] = useState('create'); // 'create', 'edit', 'view'
 
-  useEffect(() => {
+  const fetchVehicles = () => {
+    setLoading(true);
     api.get('/vehicles')
       .then(res => {
         setVeicoli(res.data);
@@ -16,7 +76,55 @@ export default function GestioneVeicoli() {
         console.error("Errore caricamento veicoli:", err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchVehicles();
   }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Sei sicuro di voler eliminare questo veicolo?")) return;
+    try {
+      await api.delete(`/vehicles/${id}`);
+      setVeicoli(prev => prev.filter(v => v.id !== id));
+    } catch (err) {
+      console.error("Errore eliminazione:", err);
+      alert("Errore durante l'eliminazione.");
+    }
+  };
+
+  const handleSave = async (formData) => {
+    try {
+      if (modalMode === 'edit' && selectedVehicle) {
+        await api.put(`/vehicles/${selectedVehicle.id}`, formData);
+      } else {
+        await api.post('/vehicles', formData);
+      }
+      setIsModalOpen(false);
+      fetchVehicles();
+    } catch (err) {
+      console.error("Errore salvataggio:", err);
+      alert("Errore durante il salvataggio.");
+    }
+  };
+
+  const openCreate = () => {
+    setModalMode('create');
+    setSelectedVehicle(null);
+    setIsModalOpen(true);
+  };
+
+  const openEdit = (vehicle) => {
+    setModalMode('edit');
+    setSelectedVehicle(vehicle);
+    setIsModalOpen(true);
+  };
+
+  const openView = (vehicle) => {
+    setModalMode('view');
+    setSelectedVehicle(vehicle);
+    setIsModalOpen(true);
+  };
 
   const filteredVeicoli = veicoli.filter(v => 
     v.license_plate?.toLowerCase().includes(search.toLowerCase()) ||
@@ -31,15 +139,15 @@ export default function GestioneVeicoli() {
     if (s.includes('carica')) return 'bg-stato-inricarica/20 text-brand-testo border-stato-inricarica';
     if (s.includes('guasto')) return 'bg-stato-guasto/20 text-brand-testo border-stato-guasto';
     if (s.includes('rubato')) return 'bg-stato-rubato/20 text-brand-testo border-stato-rubato';
-    if (s.includes('offline') || s.includes('inattivo')) return 'bg-stato-offline/20 text-brand-testo border-stato-offline';
+    if (s.includes('offline') || s.includes('inattivo') || s.includes('fuori area')) return 'bg-stato-offline/20 text-brand-testo border-stato-offline';
     return 'bg-gray-100 text-gray-600 border-gray-200';
   };
 
-  // Calcolo KPI dinamici
+  // Calcolo KPI dinamici per 7 stati
   const stats = {
-    auto: { total: 0, available: 0, active: 0, charging: 0, maintenance: 0, broken: 0 },
-    bici: { total: 0, available: 0, active: 0, charging: 0, maintenance: 0, broken: 0 },
-    monopattini: { total: 0, available: 0, active: 0, charging: 0, maintenance: 0, broken: 0 }
+    auto: { total: 0, disponibile: 0, attivo: 0, inricarica: 0, manutenzione: 0, offline: 0, guasto: 0, rubato: 0 },
+    bici: { total: 0, disponibile: 0, attivo: 0, inricarica: 0, manutenzione: 0, offline: 0, guasto: 0, rubato: 0 },
+    monopattini: { total: 0, disponibile: 0, attivo: 0, inricarica: 0, manutenzione: 0, offline: 0, guasto: 0, rubato: 0 }
   };
 
   veicoli.forEach(v => {
@@ -51,33 +159,17 @@ export default function GestioneVeicoli() {
 
     if (category) {
       stats[category].total++;
-      const status = v.status?.name?.toLowerCase() || '';
-      if (v.in_movement) stats[category].active++;
-      else if (status.includes('disponibile')) stats[category].available++;
-      else if (status.includes('carica')) stats[category].charging++;
-      else if (status.includes('manutenzione')) stats[category].maintenance++;
-      else if (status.includes('guasto')) stats[category].broken++;
+      const statusName = v.status?.name?.toLowerCase() || '';
+      
+      if (v.in_movement) stats[category].attivo++;
+      else if (statusName.includes('disponibile')) stats[category].disponibile++;
+      else if (statusName.includes('carica')) stats[category].inricarica++;
+      else if (statusName.includes('manutenzione')) stats[category].manutenzione++;
+      else if (statusName.includes('guasto')) stats[category].guasto++;
+      else if (statusName.includes('rubato')) stats[category].rubato++;
+      else if (statusName.includes('offline') || statusName.includes('inattivo') || statusName.includes('fuori area')) stats[category].offline++;
     }
   });
-
-  const getRingData = (categoryData) => {
-    const total = categoryData.total || 1; // Evita divisione per zero
-    const dashArray = 314;
-    
-    // Percentuali
-    const pAvailable = (categoryData.available / total) * 100;
-    const pActive = (categoryData.active / total) * 100;
-
-    // Offsets per cerchi sovrapposti (molto semplificato)
-    const offAvailable = dashArray - (dashArray * pAvailable) / 100;
-    const offActive = dashArray - (dashArray * (pAvailable + pActive)) / 100;
-
-    return { pAvailable, pActive, offAvailable, offActive, total: categoryData.total };
-  };
-
-  const ringAuto = getRingData(stats.auto);
-  const ringBici = getRingData(stats.bici);
-  const ringMono = getRingData(stats.monopattini);
 
   return (
     <div className="flex flex-col gap-6 text-brand-testo flex-1">
@@ -99,48 +191,13 @@ export default function GestioneVeicoli() {
             <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-stato-rubato"></span> Rubato</div>
           </div>
 
-          {/* Anello 1 - Automobili */}
-          <div className="flex flex-col items-center relative">
-            <svg className="w-32 h-32 transform -rotate-90">
-              <circle cx="64" cy="64" r="50" stroke="#f3f4f6" strokeWidth="12" fill="transparent" />
-              <circle cx="64" cy="64" r="50" stroke="var(--color-stato-disponibile)" strokeWidth="12" fill="transparent" strokeDasharray="314" strokeDashoffset={ringAuto.offAvailable} strokeLinecap="round" className="transition-all duration-1000" />
-              <circle cx="64" cy="64" r="50" stroke="var(--color-stato-attivo)" strokeWidth="12" fill="transparent" strokeDasharray="314" strokeDashoffset={ringAuto.offActive} strokeLinecap="round" className="transition-all duration-1000" />
-            </svg>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-              <span className="text-xl font-bold block">{ringAuto.total}</span>
-              <span className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">Automobili</span>
-            </div>
-          </div>
-
-          {/* Anello 2 - Biciclette */}
-          <div className="flex flex-col items-center relative">
-            <svg className="w-32 h-32 transform -rotate-90">
-              <circle cx="64" cy="64" r="50" stroke="#f3f4f6" strokeWidth="12" fill="transparent" />
-              <circle cx="64" cy="64" r="50" stroke="var(--color-stato-disponibile)" strokeWidth="12" fill="transparent" strokeDasharray="314" strokeDashoffset={ringBici.offAvailable} strokeLinecap="round" className="transition-all duration-1000" />
-              <circle cx="64" cy="64" r="50" stroke="var(--color-stato-attivo)" strokeWidth="12" fill="transparent" strokeDasharray="314" strokeDashoffset={ringBici.offActive} strokeLinecap="round" className="transition-all duration-1000" />
-            </svg>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-              <span className="text-xl font-bold block">{ringBici.total}</span>
-              <span className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">Biciclette</span>
-            </div>
-          </div>
-
-          {/* Anello 3 - Monopattini */}
-          <div className="flex flex-col items-center relative">
-            <svg className="w-32 h-32 transform -rotate-90">
-              <circle cx="64" cy="64" r="50" stroke="#f3f4f6" strokeWidth="12" fill="transparent" />
-              <circle cx="64" cy="64" r="50" stroke="var(--color-stato-disponibile)" strokeWidth="12" fill="transparent" strokeDasharray="314" strokeDashoffset={ringMono.offAvailable} strokeLinecap="round" className="transition-all duration-1000" />
-              <circle cx="64" cy="64" r="50" stroke="var(--color-stato-attivo)" strokeWidth="12" fill="transparent" strokeDasharray="314" strokeDashoffset={ringMono.offActive} strokeLinecap="round" className="transition-all duration-1000" />
-            </svg>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-              <span className="text-xl font-bold block">{ringMono.total}</span>
-              <span className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">Monopattini</span>
-            </div>
-          </div>
+          <StatusRing data={stats.auto} label="Automobili" />
+          <StatusRing data={stats.bici} label="Biciclette" />
+          <StatusRing data={stats.monopattini} label="Monopattini" />
 
         </div>
 
-        {/* Pannello Istogramma Settimanale */}
+        {/* Pannello Istogramma Settimanale (Dati fittizi per ora) */}
         <div className="card">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-base font-bold text-brand-testo">Utilizzo Mezzi</h3>
@@ -151,7 +208,6 @@ export default function GestioneVeicoli() {
             </div>
           </div>
           
-          {/* Box Barre */}
           <div className="flex justify-between items-end h-32 pt-2 border-b border-gray-100">
             {['LU', 'MA', 'ME', 'GI', 'VE', 'SA', 'DO'].map((giorno, idx) => (
               <div key={idx} className="flex flex-col items-center gap-3 flex-1">
@@ -180,7 +236,10 @@ export default function GestioneVeicoli() {
             className="border-none outline-none text-sm w-full bg-transparent text-brand-testo font-medium placeholder:text-gray-400"
           />
         </div>
-        <button className="bg-brand-testo text-brand-sfondo px-6 py-2.5 rounded-xl font-bold text-sm shadow-md hover:opacity-90 active:scale-95 transition-all cursor-pointer">
+        <button 
+          onClick={openCreate}
+          className="bg-brand-testo text-brand-sfondo px-6 py-2.5 rounded-xl font-bold text-sm shadow-md hover:opacity-90 active:scale-95 transition-all cursor-pointer"
+        >
           + Aggiungi Veicolo
         </button>
       </div>
@@ -229,9 +288,9 @@ export default function GestioneVeicoli() {
                   </td>
                   <td className="p-5">
                     <div className="flex justify-center items-center gap-4 text-gray-300">
-                      <button className="hover:text-brand-testo transition-colors cursor-pointer text-lg" title="Visualizza">👁</button>
-                      <button className="hover:text-stato-inricarica transition-colors cursor-pointer text-lg" title="Modifica">✏️</button>
-                      <button className="hover:text-stato-guasto transition-colors cursor-pointer text-lg" title="Elimina">🗑️</button>
+                      <button onClick={() => openView(veicolo)} className="hover:text-brand-testo transition-colors cursor-pointer text-lg" title="Visualizza">👁</button>
+                      <button onClick={() => openEdit(veicolo)} className="hover:text-stato-inricarica transition-colors cursor-pointer text-lg" title="Modifica">✏️</button>
+                      <button onClick={() => handleDelete(veicolo.id)} className="hover:text-stato-guasto transition-colors cursor-pointer text-lg" title="Elimina">🗑️</button>
                     </div>
                   </td>
                 </tr>
@@ -240,6 +299,14 @@ export default function GestioneVeicoli() {
           </tbody>
         </table>
       </div>
+
+      <VehicleModal 
+        open={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSave={handleSave} 
+        vehicle={selectedVehicle}
+        mode={modalMode}
+      />
 
     </div>
   );

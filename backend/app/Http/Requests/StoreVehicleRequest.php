@@ -23,7 +23,15 @@ class StoreVehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'model_id' => 'required|exists:vehicle_models,id',
+            'license_plate' => 'nullable|string|max:255',
+            'position' => 'nullable|string|max:255',
+            'status_id' => 'required|exists:statuses,id',
+            'in_movement' => 'boolean',
+            'battery_percentage' => 'nullable|integer|between:0,100',
+            'station_id' => 'nullable|exists:stations,id',
+            'km_total' => 'integer|min:0',
+            'co2_saved' => 'integer|min:0',
         ];
     }
 }

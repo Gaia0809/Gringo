@@ -23,7 +23,12 @@ class StoreInterventionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'category_id' => 'required|exists:intervention_categories,id',
+            'issue_id' => 'nullable|exists:issues,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status_id' => 'required|exists:intervention_statuses,id',
+            'planned_date' => 'nullable|date',
         ];
     }
 }

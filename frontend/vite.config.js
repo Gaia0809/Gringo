@@ -7,13 +7,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8000',
+        target: 'http://gringo.test',
         changeOrigin: true,
-        configure: (proxy, _options) => {
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
-            proxyReq.setHeader('Host', 'gringo.test');
-          });
-        },
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',

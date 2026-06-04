@@ -23,7 +23,12 @@ class UpdateInterventionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'category_id' => 'sometimes|required|exists:intervention_categories,id',
+            'issue_id' => 'nullable|exists:issues,id',
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'status_id' => 'sometimes|required|exists:intervention_statuses,id',
+            'planned_date' => 'nullable|date',
         ];
     }
 }

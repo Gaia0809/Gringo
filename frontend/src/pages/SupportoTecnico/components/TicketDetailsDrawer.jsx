@@ -55,12 +55,30 @@ const TicketDetailsDrawer = ({ ticket, onAddNote, onEditNote, onDeleteNote, onDe
           <h2 className="text-lg font-bold text-brand-testo leading-snug">{ticket.title}</h2>
         </div>
         <div className="flex items-center gap-2">
-          <StatusButton
-            status={ticket.status === 'Aperti' ? 'In Corso' : ticket.status === 'In Corso' ? 'Chiusi' : 'Aperti'}
-            onClick={() => onChangeStatus(ticket.id, ticket.status === 'Aperti' ? 'In Corso' : ticket.status === 'In Corso' ? 'Chiusi' : 'Aperti')}
-            variant="outline"
-            className="text-xs"
-          />
+          {ticket.status !== 'Aperti' && (
+            <StatusButton
+              status="Aperti"
+              onClick={() => onChangeStatus(ticket.id, 'Aperti')}
+              variant="outline"
+              className="text-[10px] px-3 py-1.5"
+            />
+          )}
+          {ticket.status !== 'In Corso' && (
+            <StatusButton
+              status="In Corso"
+              onClick={() => onChangeStatus(ticket.id, 'In Corso')}
+              variant="outline"
+              className="text-[10px] px-3 py-1.5"
+            />
+          )}
+          {ticket.status !== 'Chiusi' && (
+            <StatusButton
+              status="Chiusi"
+              onClick={() => onChangeStatus(ticket.id, 'Chiusi')}
+              variant="outline"
+              className="text-[10px] px-3 py-1.5"
+            />
+          )}
           <button
             onClick={() => { if (window.confirm('Eliminare questo ticket?')) onDeleteTicket(ticket.id) }}
             className="p-2.5 rounded-xl text-stato-guasto hover:bg-stato-guasto/10 transition-colors cursor-pointer"

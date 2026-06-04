@@ -1,5 +1,26 @@
 import { useState, useEffect, useMemo } from 'react'
-import api from '../../../services/Api.js'
+import api from '../../../api.js'
+
+const STATUS_MAP = {
+  'Aperti': 1,
+  'In Corso': 2,
+  'Chiusi': 3,
+}
+
+const REVERSE_STATUS_MAP = {
+  1: 'Aperti',
+  2: 'In Corso',
+  3: 'Chiusi',
+  4: 'Chiusi', // Annullato mappato a Chiusi per semplicità
+}
+
+function mapStatus(statusName) {
+  const s = statusName?.toLowerCase() || '';
+  if (s.includes('attesa') || s.includes('aperto')) return 'Aperti';
+  if (s.includes('corso')) return 'In Corso';
+  if (s.includes('completato') || s.includes('chiuso') || s.includes('annullato')) return 'Chiusi';
+  return 'Aperti';
+}
 
 function formatDate(dateStr) {
   if (!dateStr) return ''
@@ -24,14 +45,15 @@ function mapTicket(i) {
   return {
     id: i.id,
     title: i.title,
-    status: i.status ?? 'Aperti',
-    vehicle: i.vehicle ?? '',
-    vehicle_id: i.vehicle_id,
-    station: i.station ?? '',
-    station_id: i.station_id,
-    priority: i.priority ?? 'Media',
-    technician: i.technician ?? 'Non assegnato',
-    technician_id: i.technician_id,
+    status: mapStatus(i.status?.name),
+    status_id: i.status_id,
+    vehicle: i.issue?.booking?.vehicle?.license_plate ?? 'Generico',
+    vehicle_id: i.issue?.booking?.vehicle_id,
+    station: i.issue?.booking?.vehicle?.station?.name ?? '',
+    station_id: i.issue?.booking?.vehicle?.station_id,
+    priority: i.issue?.priority ?? 'Media',
+    technician: i.issue?.assigned_to?.name ?? 'Non assegnato',
+    technician_id: i.issue?.assigned_to?.id,
     notes: i.notes ?? [],
     createdAt: formatDate(i.created_at),
   }
@@ -43,14 +65,18 @@ export function useTickets() {
   const [selectedTicketId, setSelectedTicketId] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(/** @type {Error|null} */ (null))
+  const [error, setError] = useState(null)
 
-  useEffect(() => {
+  const fetchTickets = () => {
     setLoading(true)
     api.get('/interventions')
-      .then(data => setTickets(data.map(mapTicket)))
+      .then(res => setTickets(res.data.map(mapTicket)))
       .catch(setError)
       .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    fetchTickets()
   }, [])
 
   const selectedTicket = useMemo(
@@ -69,54 +95,79 @@ export function useTickets() {
     [tickets, activeStatus]
   )
 
-  const toggleTicket = (ticketId) => {
-    setSelectedTicketId(prev => prev === ticketId ? null : ticketId)
+  const toggleTicket = (ticket) => {
+    const id = typeof ticket === 'object' ? ticket.id : ticket;
+    setSelectedTicketId(prev => prev === id ? null : id)
   }
 
   const createTicket = async (ticketData) => {
-    const created = await api.post('/interventions', ticketData)
-    const newTicket = mapTicket(created)
-    setTickets(prev => [newTicket, ...prev])
-    setSelectedTicketId(newTicket.id)
-    setActiveStatus('Aperti')
-    setIsModalOpen(false)
+    try {
+      // Per semplicità usiamo la categoria 1 e status 1 se non specificati
+      const payload = {
+        title: ticketData.title,
+        description: ticketData.note,
+        category_id: 1, // Tagliando di default
+        status_id: 1,   // In Attesa
+        // Se avessimo un sistema per creare l'issue andrebbe qui
+      }
+      const res = await api.post('/interventions', payload)
+      const newTicket = mapTicket(res.data)
+      setTickets(prev => [newTicket, ...prev])
+      setSelectedTicketId(newTicket.id)
+      setActiveStatus('Aperti')
+      setIsModalOpen(false)
+    } catch (err) {
+      console.error("Errore creazione ticket:", err)
+      throw err
+    }
   }
 
   const deleteTicket = async (ticketId) => {
-    await api.delete(`/interventions/${ticketId}`)
-    setTickets(prev => prev.filter(t => t.id !== ticketId))
-    if (selectedTicketId === ticketId) setSelectedTicketId(null)
+    try {
+      await api.delete(`/interventions/${ticketId}`)
+      setTickets(prev => prev.filter(t => t.id !== ticketId))
+      if (selectedTicketId === ticketId) setSelectedTicketId(null)
+    } catch (err) {
+      console.error("Errore eliminazione ticket:", err)
+    }
   }
 
-  const changeStatus = async (ticketId, newStatus) => {
-    const updated = await api.put(`/interventions/${ticketId}`, { status: newStatus })
-    const mapped = mapTicket(updated)
-    setTickets(prev => prev.map(t => t.id === ticketId ? mapped : t))
-    if (selectedTicketId === ticketId && newStatus !== activeStatus) setSelectedTicketId(null)
+  const changeStatus = async (ticketId, newStatusName) => {
+    try {
+      const status_id = STATUS_MAP[newStatusName]
+      if (!status_id) return
+
+      const res = await api.put(`/interventions/${ticketId}`, { status_id })
+      // Laravel ritorna l'oggetto aggiornato ma senza relazioni caricate a volte,
+      // meglio rinfrescare o mappare se possibile. 
+      // Qui facciamo una patch locale per non rifare la get di tutto
+      setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: newStatusName, status_id } : t))
+      
+      // Se il ticket cambia tab e non è più visibile, lo deselezioniamo
+      if (selectedTicketId === ticketId && newStatusName !== activeStatus) {
+        setSelectedTicketId(null)
+      }
+    } catch (err) {
+      console.error("Errore cambio stato:", err)
+    }
   }
 
-  const addNote = async (ticketId, noteText) => {
-    const note = await api.post(`/interventions/${ticketId}/notes`, { text: noteText })
-    setTickets(prev => prev.map(t => {
-      if (t.id !== ticketId) return t
-      return { ...t, notes: [...t.notes, note] }
-    }))
+  const addNote = (ticketId, text) => {
+    // Nota locale per ora, o implementare API note
+    const nuovaNota = { id: Date.now(), text, createdAt: new Date().toLocaleString('it-IT') };
+    setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, notes: [...t.notes, nuovaNota] } : t));
   }
 
-  const editNote = async (ticketId, noteId, newText) => {
-    const note = await api.put(`/interventions/${ticketId}/notes/${noteId}`, { text: newText })
-    setTickets(prev => prev.map(t => {
-      if (t.id !== ticketId) return t
-      return { ...t, notes: t.notes.map(n => n.id === noteId ? note : n) }
-    }))
+  const editNote = (ticketId, noteId, text) => {
+    setTickets(prev => prev.map(t => t.id === ticketId ? {
+      ...t, notes: t.notes.map(n => n.id === noteId ? { ...n, text } : n)
+    } : t));
   }
 
-  const deleteNote = async (ticketId, noteId) => {
-    await api.delete(`/interventions/${ticketId}/notes/${noteId}`)
-    setTickets(prev => prev.map(t => {
-      if (t.id !== ticketId) return t
-      return { ...t, notes: t.notes.filter(n => n.id !== noteId) }
-    }))
+  const deleteNote = (ticketId, noteId) => {
+    setTickets(prev => prev.map(t => t.id === ticketId ? {
+      ...t, notes: t.notes.filter(n => n.id !== noteId)
+    } : t));
   }
 
   return {
@@ -139,5 +190,6 @@ export function useTickets() {
     addNote,
     editNote,
     deleteNote,
+    fetchTickets
   }
 }

@@ -18,7 +18,7 @@ export default {
           attivo: '#12FF06',
           inricarica: '#FFBD53',
           manutenzione: '#8A8A8B',
-          offline: '#8A8A8B',
+          offline: '#D0D2D3',
           guasto: '#F75555',
           rubato: '#000000',
         },
