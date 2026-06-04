@@ -1,33 +1,75 @@
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import Dashboard from './pages/dashboard.jsx';
-import './App.css';
+import GestioneVeicoli from './pages/GestioneVeicoli/GestioneVeicoli.jsx';
+import SupportoTecnico from './pages/SupportoTecnico/SupportoTecnico.jsx';
 
-// COMPONENTI SEGNAPOSTO (Così non crasha nulla in locale e non crei conflitti a Gaia)
-function SupportoMock() { 
-  return <div style={{ padding: '30px', fontFamily: "'Outfit', sans-serif" }}><h1>Supporto Tecnico</h1><p>Schermata in sviluppo.</p></div>; 
-}
-function VeicoliMock() { 
-  return <div style={{ padding: '30px', fontFamily: "'Outfit', sans-serif" }}><h1>Gestione Veicoli</h1><p>Schermata in sviluppo.</p></div>; 
-}
+// COMPONENTE SEGNAPOSTO
 function StazioniMock() { 
-  return <div style={{ padding: '30px', fontFamily: "'Outfit', sans-serif" }}><h1>Gestione Stazioni</h1><p>Schermata in sviluppo.</p></div>; 
+  return (
+    <div className="p-8">
+      <h1 className="text-2xl font-bold text-brand-testo">Gestione Stazioni</h1>
+      <p className="text-gray-500 mt-2">Schermata in sviluppo.</p>
+    </div>
+  ); 
 }
 
 function Layout({ children }) {
   const location = useLocation();
   const currentPath = location.pathname;
 
+  const getNavClass = (path) => {
+    const isActive = currentPath === path;
+    return `btn-nav ${isActive ? 'btn-nav-active' : 'btn-nav-inactive'}`;
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#f4f6f8', fontFamily: "'Outfit', sans-serif", padding: '24px', gap: '24px' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#ffffff', padding: '12px 24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-        <div style={{ display: 'flex', gap: '12px', flex: 1 }}>
-          <Link to="/dashboard" style={{ textDecoration: 'none' }}><button style={{ padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: '600', border: 'none', cursor: 'pointer', backgroundColor: currentPath === '/dashboard' ? '#1a1a1a' : '#f1f5f9', color: currentPath === '/dashboard' ? '#ffffff' : '#475569' }}>Dashboard</button></Link>
-          <Link to="/supporto" style={{ textDecoration: 'none' }}><button style={{ padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: '600', border: 'none', cursor: 'pointer', backgroundColor: currentPath === '/supporto' ? '#1a1a1a' : '#f1f5f9', color: currentPath === '/supporto' ? '#ffffff' : '#475569' }}>Supporto tecnico</button></Link>
-          <Link to="/veicoli" style={{ textDecoration: 'none' }}><button style={{ padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: '600', border: 'none', cursor: 'pointer', backgroundColor: currentPath === '/veicoli' ? '#1a1a1a' : '#f1f5f9', color: currentPath === '/veicoli' ? '#ffffff' : '#475569' }}>Gestione veicoli</button></Link>
-          <Link to="/stazioni" style={{ textDecoration: 'none' }}><button style={{ padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: '600', border: 'none', cursor: 'pointer', backgroundColor: currentPath === '/stazioni' ? '#1a1a1a' : '#f1f5f9', color: currentPath === '/stazioni' ? '#ffffff' : '#475569' }}>Gestione stazioni</button></Link>
+    <div className="flex flex-col min-h-screen bg-brand-sfondoelementi text-brand-testo p-6 gap-6">
+      
+      {/* BARRA SUPERIORE ORIZZONTALE UNIFICATA */}
+      <header className="flex justify-between items-center bg-brand-sfondo py-3 px-6 rounded-2xl shadow-sm z-30 border border-gray-100">
+        <div className="flex gap-3 flex-1">
+          
+          <Link to="/dashboard" className="no-underline">
+            <button className={getNavClass('/dashboard')}>
+              Dashboard
+            </button>
+          </Link>
+
+          <Link to="/supporto" className="no-underline">
+            <button className={getNavClass('/supporto')}>
+              Supporto tecnico
+            </button>
+          </Link>
+
+          <Link to="/veicoli" className="no-underline">
+            <button className={getNavClass('/veicoli')}>
+              Gestione veicoli
+            </button>
+          </Link>
+
+          <Link to="/stazioni" className="no-underline">
+            <button className={getNavClass('/stazioni')}>
+              Gestione stazioni
+            </button>
+          </Link>
+
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <select className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold outline-none focus:border-brand-testo bg-brand-sfondo cursor-pointer">
+            <option>Settimana</option>
+            <option>Mese</option>
+            <option>Giorno</option>
+          </select>
+          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-accent-purple to-accent-blue cursor-pointer shadow-sm border-2 border-white" />
         </div>
       </header>
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>{children}</main>
+
+      {/* CONTENUTO DELLA PAGINA CORRENTE */}
+      <main className="flex-1 flex flex-col">
+        {children}
+      </main>
+
     </div>
   );
 }
@@ -38,8 +80,8 @@ export default function App() {
       <Layout>
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/supporto" element={<SupportoMock />} />
-          <Route path="/veicoli" element={<VeicoliMock />} />
+          <Route path="/veicoli" element={<GestioneVeicoli />} />
+          <Route path="/supporto" element={<SupportoTecnico />} />
           <Route path="/stazioni" element={<StazioniMock />} />
           <Route path="/*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

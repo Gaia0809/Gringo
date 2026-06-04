@@ -19,57 +19,49 @@ export default function MapView({ onExpand }) {
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1, fontFamily: "'Outfit', sans-serif" }}>
+    <div className="flex flex-col gap-5 flex-1">
       
       {/* KPI Panel Superiori */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '15px' }}>
-        <div className="card" style={{ padding: '12px', borderTop: '3px solid #dc2626', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-          <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#dc2626' }}>ALERT BATTERIA STAZIONI &lt; 15%</div>
-          <div style={{ display: 'flex', fontSize: '13px', marginTop: '5px', gap: '20px' }}>
-            <span>Stazione - SD-12 <strong style={{ color: '#dc2626' }}>8%</strong></span>
-            <span>Stazione - CF-11 <strong style={{ color: '#dc2626' }}>12%</strong></span>
+      <div className="grid grid-cols-[2fr_1fr_1fr] gap-4">
+        <div className="card p-3 border-t-4 border-t-stato-guasto">
+          <div className="text-[10px] font-bold text-stato-guasto uppercase tracking-widest">Alert Batteria Stazioni &lt; 15%</div>
+          <div className="flex text-xs mt-1.5 gap-5 font-semibold">
+            <span>Stazione - SD-12 <strong className="text-stato-guasto ml-1">8%</strong></span>
+            <span>Stazione - CF-11 <strong className="text-stato-guasto ml-1">12%</strong></span>
           </div>
         </div>
-        <div className="card" style={{ padding: '12px', textAlign: 'center', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-          <div style={{ fontSize: '11px', color: '#666' }}>Batteria Media</div>
-          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e' }}>85%</div>
+        <div className="card p-3 text-center flex flex-col justify-center">
+          <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Batteria Media</div>
+          <div className="text-2xl font-bold text-stato-attivo leading-none">85%</div>
         </div>
-        <div className="card" style={{ padding: '12px', textAlign: 'center', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-          <div style={{ fontSize: '11px', color: '#666' }}>In Movimento</div>
-          <div style={{ fontSize: '20px', fontWeight: 'bold' }}>92/150</div>
+        <div className="card p-3 text-center flex flex-col justify-center">
+          <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">In Movimento</div>
+          <div className="text-2xl font-bold text-brand-testo leading-none">92/150</div>
         </div>
       </div>
 
       {/* Box Mappa Reale */}
-      <div className="card" style={{ flex: 1, position: 'relative', overflow: 'hidden', padding: 0, minHeight: '400px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+      <div className="card flex-1 relative overflow-hidden !p-0 min-h-[400px]">
         
         {/* FILTRI DI RICERCA FLUTTUANTI SOVRAPPOSTI */}
-        <div style={{
-          position: 'absolute',
-          top: '20px',
-          left: '20px',
-          zIndex: 10,
-          display: 'flex',
-          gap: '12px',
-          alignItems: 'center'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#ffffff', padding: '8px 16px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #e5e7eb' }}>
-            <span style={{ marginRight: '8px', color: '#9ca3af' }}>🔍</span>
+        <div className="absolute top-5 left-5 z-10 flex gap-3 items-center">
+          <div className="flex items-center bg-brand-sfondo px-4 py-2 rounded-xl shadow-md border border-gray-100">
+            <span className="mr-2 text-gray-400">🔍</span>
             <input 
               type="text" 
               placeholder="Cerca ID, Targa, Stazione" 
-              style={{ border: 'none', outline: 'none', fontSize: '14px', fontFamily: "'Outfit', sans-serif", width: '180px' }} 
+              className="border-none outline-none text-sm w-44 bg-transparent text-brand-testo font-semibold" 
             />
           </div>
 
-          <select style={{ padding: '8px 16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', fontSize: '14px', fontFamily: "'Outfit', sans-serif", outline: 'none', cursor: 'pointer' }}>
+          <select className="px-4 py-2 bg-brand-sfondo rounded-xl shadow-md border border-gray-100 text-sm font-semibold text-brand-testo outline-none cursor-pointer hover:bg-gray-50 transition-colors">
             <option>Ecosistema</option>
             <option>Macchine</option>
             <option>Biciclette</option>
             <option>Monopattini</option>
           </select>
 
-          <select style={{ padding: '8px 16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', fontSize: '14px', fontFamily: "'Outfit', sans-serif", outline: 'none', cursor: 'pointer' }}>
+          <select className="px-4 py-2 bg-brand-sfondo rounded-xl shadow-md border border-gray-100 text-sm font-semibold text-brand-testo outline-none cursor-pointer hover:bg-gray-50 transition-colors">
             <option>Stato</option>
             <option>Disponibile</option>
             <option>In uso</option>
@@ -96,15 +88,7 @@ export default function MapView({ onExpand }) {
               <div
                 onMouseEnter={() => setSelectedMarker(marker)}
                 onMouseLeave={() => setSelectedMarker(null)}
-                style={{
-                  width: '14px',
-                  height: '14px',
-                  backgroundColor: marker.type === 'stazione' ? '#dc2626' : '#2563eb',
-                  borderRadius: '50%',
-                  border: '2px solid #fff',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
-                }}
+                className={`w-4 h-4 rounded-full border-2 border-white shadow-lg cursor-pointer transform hover:scale-125 transition-transform ${marker.type === 'stazione' ? 'bg-stato-guasto' : 'bg-accent-blue'}`}
               />
             </Marker>
           ))}
@@ -113,25 +97,16 @@ export default function MapView({ onExpand }) {
         {/* Bottone Espandi */}
         <button 
           onClick={onExpand}
-          style={{
-            position: 'absolute', bottom: '15px', right: '15px',
-            background: '#fff', border: '1px solid #ccc', borderRadius: '6px',
-            width: '32px', height: '32px', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10
-          }}
+          className="absolute bottom-4 right-4 bg-brand-sfondo border border-gray-200 rounded-lg w-9 h-9 flex items-center justify-center shadow-md cursor-pointer hover:bg-gray-50 transition-colors z-10 text-brand-testo font-bold"
         >
           🗖
         </button>
 
         {/* Tooltip Hover */}
         {selectedMarker && (
-          <div style={{
-            position: 'absolute', bottom: '60px', right: '15px',
-            backgroundColor: 'rgba(0,0,0,0.8)', color: '#fff', padding: '8px',
-            borderRadius: '6px', fontSize: '11px', zIndex: 20
-          }}>
-            <strong>{selectedMarker.name}</strong>
-            <div>{selectedMarker.info}</div>
+          <div className="absolute bottom-16 right-4 bg-brand-testo/90 backdrop-blur-sm text-brand-sfondo p-3 rounded-xl text-[11px] z-20 shadow-xl border border-white/10 min-w-[150px]">
+            <strong className="block text-xs mb-1 border-b border-white/10 pb-1">{selectedMarker.name}</strong>
+            <div className="opacity-90">{selectedMarker.info}</div>
           </div>
         )}
       </div>

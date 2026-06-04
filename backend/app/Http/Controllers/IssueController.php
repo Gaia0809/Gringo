@@ -2,37 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Issues;
-use App\Http\Requests\StoreissuesRequest;
-use App\Http\Requests\UpdateissuesRequest;
+use App\Models\Issue;
+use App\Http\Requests\StoreIssueRequest;
+use App\Http\Requests\UpdateIssueRequest;
 use Illuminate\Http\JsonResponse;
 
-class IssuesController extends Controller
+class IssueController extends Controller
 {
     public function index(): JsonResponse
     {
-        $allIssues = Issues::with(['booking', 'interventions'])->get();
+        $allIssues = Issue::with(['booking', 'interventions'])->get();
         return response()->json($allIssues);
     }
 
-    public function store(StoreissuesRequest $request): JsonResponse
+    public function store(StoreIssueRequest $request): JsonResponse
     {
-        $newIssue = Issues::create($request->validated());
+        $newIssue = Issue::create($request->validated());
         return response()->json($newIssue, 210);
     }
 
-    public function show(Issues $issue): JsonResponse
+    public function show(Issue $issue): JsonResponse
     {
         return response()->json($issue->load(['booking', 'interventions']));
     }
 
-    public function update(UpdateissuesRequest $request, Issues $issue): JsonResponse
+    public function update(UpdateIssueRequest $request, Issue $issue): JsonResponse
     {
         $issue->update($request->validated());
         return response()->json($issue);
     }
 
-    public function destroy(Issues $issue): JsonResponse
+    public function destroy(Issue $issue): JsonResponse
     {
         $issue->delete();
         return response()->json(null, 204);

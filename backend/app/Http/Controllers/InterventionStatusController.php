@@ -2,37 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\InterventionStatuses;
-use App\Http\Requests\Storeintervention_statusesRequest;
-use App\Http\Requests\Updateintervention_statusesRequest;
+use App\Models\InterventionStatus;
+use App\Http\Requests\StoreInterventionStatusRequest;
+use App\Http\Requests\UpdateInterventionStatusRequest;
 use Illuminate\Http\JsonResponse;
 
-class InterventionStatusesController extends Controller
+class InterventionStatusController extends Controller
 {
     public function index(): JsonResponse
     {
-        $allStatuses = InterventionStatuses::all();
+        $allStatuses = InterventionStatus::all();
         return response()->json($allStatuses);
     }
 
-    public function store(Storeintervention_statusesRequest $request): JsonResponse
+    public function store(StoreInterventionStatusRequest $request): JsonResponse
     {
-        $newStatus = InterventionStatuses::create($request->validated());
+        $newStatus = InterventionStatus::create($request->validated());
         return response()->json($newStatus, 210);
     }
 
-    public function show(InterventionStatuses $interventionStatus): JsonResponse
+    public function show(InterventionStatus $interventionStatus): JsonResponse
     {
         return response()->json($interventionStatus);
     }
 
-    public function update(Updateintervention_statusesRequest $request, InterventionStatuses $interventionStatus): JsonResponse
+    public function update(UpdateInterventionStatusRequest $request, InterventionStatus $interventionStatus): JsonResponse
     {
         $interventionStatus->update($request->validated());
         return response()->json($interventionStatus);
     }
 
-    public function destroy(InterventionStatuses $interventionStatus): JsonResponse
+    public function destroy(InterventionStatus $interventionStatus): JsonResponse
     {
         $interventionStatus->delete();
         return response()->json(null, 204);

@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\InterventionCategory;
-use App\Http\Requests\Storeintervention_categoriesRequest;
-use App\Http\Requests\Updateintervention_categoriesRequest;
+use App\Http\Requests\StoreInterventionCategoryRequest;
+use App\Http\Requests\UpdateInterventionCategoryRequest;
 use Illuminate\Http\JsonResponse;
 
-class InterventionCategoriesController extends Controller
+class InterventionCategoryController extends Controller
 {
     public function index(): JsonResponse
     {
@@ -15,7 +15,7 @@ class InterventionCategoriesController extends Controller
         return response()->json($allCategories);
     }
 
-    public function store(Storeintervention_categoriesRequest $request): JsonResponse
+    public function store(StoreInterventionCategoryRequest $request): JsonResponse
     {
         $newCategory = InterventionCategory::create($request->validated());
         return response()->json($newCategory, 210);
@@ -26,7 +26,7 @@ class InterventionCategoriesController extends Controller
         return response()->json($interventionCategory);
     }
 
-    public function update(Updateintervention_categoriesRequest $request, InterventionCategory $interventionCategory): JsonResponse
+    public function update(UpdateInterventionCategoryRequest $request, InterventionCategory $interventionCategory): JsonResponse
     {
         $interventionCategory->update($request->validated());
         return response()->json($interventionCategory);

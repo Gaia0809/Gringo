@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\InterventionStatuses;
+use App\Models\InterventionStatus;
 
 class InterventionStatusesSeeder extends Seeder
 {
@@ -23,7 +23,7 @@ class InterventionStatusesSeeder extends Seeder
         foreach ($InterventionStatuses as $status) {
             // Usiamo firstOrCreate invece di create per evitare duplicati 
             // se per caso lanci il seeder due volte di fila!
-            InterventionStatuses::firstOrCreate(['name' => $status]);
+            InterventionStatus::firstOrCreate(['name' => $status]);
         }
     }
 }

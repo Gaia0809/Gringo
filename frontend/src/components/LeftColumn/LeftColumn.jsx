@@ -4,7 +4,7 @@ import StationsCard from './StationsCard';
 
 export default function LeftColumn() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', overflowY: 'auto' }}>
+    <div className="flex flex-col gap-5 overflow-y-auto">
       <TicketCard />
       <Co2Chart />
       <StationsCard />

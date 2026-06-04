@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Interventions;
+use App\Models\Intervention;
 use Illuminate\Database\Seeder;
 
 class InterventionsSeeder extends Seeder
@@ -12,6 +12,6 @@ class InterventionsSeeder extends Seeder
      */
     public function run(): void
     {
-        Interventions::factory()->count(20)->create();
+        Intervention::factory()->count(20)->create();
     }
 }

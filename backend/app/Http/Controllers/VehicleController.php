@@ -2,37 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Vehicles;
-use App\Http\Requests\StorevehiclesRequest;
-use App\Http\Requests\UpdatevehiclesRequest;
+use App\Models\Vehicle;
+use App\Http\Requests\StoreVehicleRequest;
+use App\Http\Requests\UpdateVehicleRequest;
 use Illuminate\Http\JsonResponse;
 
-class VehiclesController extends Controller
+class VehicleController extends Controller
 {
     public function index(): JsonResponse
     {
-        $allVehicles = Vehicles::with(['vehicleModel', 'status', 'station'])->get();
+        $allVehicles = Vehicle::with(['vehicleModel.vehicleType', 'status', 'station'])->get();
         return response()->json($allVehicles);
     }
 
-    public function store(StorevehiclesRequest $request): JsonResponse
+    public function store(StoreVehicleRequest $request): JsonResponse
     {
-        $newVehicle = Vehicles::create($request->validated());
+        $newVehicle = Vehicle::create($request->validated());
         return response()->json($newVehicle, 210);
     }
 
-    public function show(Vehicles $vehicle): JsonResponse
+    public function show(Vehicle $vehicle): JsonResponse
     {
         return response()->json($vehicle->load(['vehicleModel', 'status', 'station']));
     }
 
-    public function update(UpdatevehiclesRequest $request, Vehicles $vehicle): JsonResponse
+    public function update(UpdateVehicleRequest $request, Vehicle $vehicle): JsonResponse
     {
         $vehicle->update($request->validated());
         return response()->json($vehicle);
     }
 
-    public function destroy(Vehicles $vehicle): JsonResponse
+    public function destroy(Vehicle $vehicle): JsonResponse
     {
         $vehicle->delete();
         return response()->json(null, 204);

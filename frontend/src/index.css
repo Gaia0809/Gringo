@@ -1,29 +1,56 @@
 @import "tailwindcss";
-:root {
-  --bg-dashboard: #f4f6f8;
-  --bg-card: #ffffff;
-  --text-dark: #1a1a1a;
-  --text-muted: #666666;
-  --purple-auto: #701a75;
-  --purple-monopattini: #b96ecf;
-  --cyan-bici: #67e8f9;
-  --orange-ticket: #f59e0b;
-  --red-alert: #dc2626;
-  --green-main: #22c55e;
-  --blue-primary: #2563eb;
-  --border-color: #e5e7eb;
+
+@theme {
+  /* Brand Colors */
+  --color-brand-testo: #100B0C;
+  --color-brand-sfondo: #ffffff;
+  --color-brand-sfondoelementi: #ECEBF0;
+  --color-brand-sfondowidget: #F5F5F7;
+
+  /* State Colors */
+  --color-stato-disponibile: #76E8FF;
+  --color-stato-attivo: #12FF06;
+  --color-stato-inricarica: #FFBD53;
+  --color-stato-manutenzione: #8A8A8B;
+  --color-stato-offline: #8A8A8B;
+  --color-stato-guasto: #F75555;
+  --color-stato-rubato: #000000;
+
+  /* Vehicle Colors */
+  --color-mezzo-auto: #891A67;
+  --color-mezzo-moto: #CE98DA;
+  --color-mezzo-bici: #8EDCDD;
+
+  /* Accent Colors */
+  --color-accent-blue: #2563eb;
+  --color-accent-purple: #701a75;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+@layer base {
+  * {
+    @apply box-border m-0 p-0;
+  }
+  
+  body {
+    @apply bg-brand-sfondoelementi text-brand-testo antialiased;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
 }
 
-body {
-  background-color: var(--bg-dashboard);
-  color: var(--text-dark);
+@layer components {
+  .card {
+    @apply bg-brand-sfondo rounded-2xl p-5 shadow-sm border border-gray-100;
+  }
+  
+  .btn-nav {
+    @apply px-5 py-2 rounded-full text-sm font-semibold transition-all cursor-pointer;
+  }
+  
+  .btn-nav-active {
+    @apply bg-brand-testo text-brand-sfondo;
+  }
+  
+  .btn-nav-inactive {
+    @apply bg-brand-sfondowidget text-gray-500 hover:bg-gray-200;
+  }
 }
-
-

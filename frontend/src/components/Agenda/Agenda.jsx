@@ -2,43 +2,34 @@ export default function Agenda() {
   const ore = ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
 
   return (
-    <div className="card" style={{ display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      <h3 style={{ fontSize: '16px', marginBottom: '20px' }}>Agenda</h3>
-      <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px' }}>Ora Eventi in programma oggi</div>
+    <div className="card flex flex-col relative h-full">
+      <h3 className="text-brand-testo text-base font-bold mb-5">Agenda</h3>
+      <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Eventi in programma oggi</div>
       
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div className="relative flex-1 flex flex-col justify-between">
         
         {/* Linea orario corrente (10:00) */}
-        <div style={{
-          position: 'absolute', top: '23%', left: '0', right: '0',
-          borderTop: '2px solid var(--blue-primary)', zIndex: 5, display: 'flex', alignItems: 'center'
-        }}>
-          <span style={{ backgroundColor: 'var(--blue-primary)', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '10px', marginLeft: '40px', transform: 'translateY(-50%)' }}>10:00</span>
+        <div className="absolute top-[23%] left-0 right-0 border-t-2 border-accent-blue z-10 flex items-center">
+          <span className="bg-accent-blue text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-11 -translate-y-1/2 shadow-sm">10:00</span>
         </div>
 
         {/* Slot Orari */}
         {ore.map((ora) => (
-          <div key={ora} style={{ display: 'flex', alignItems: 'center', height: '40px', borderBottom: '1px solid #f3f4f6', fontSize: '13px' }}>
-            <span style={{ width: '45px', color: 'var(--text-muted)' }}>{ora}</span>
+          <div key={ora} className="flex items-center h-10 border-b border-gray-50 text-xs">
+            <span className="w-12 text-gray-400 font-medium">{ora}</span>
           </div>
         ))}
 
-        {/* Card Evento 1: Call Tecnici (Posizionata in Absolute sopra le ore 8-9) */}
-        <div style={{
-          position: 'absolute', top: '2px', left: '55px', right: '5px', height: '55px',
-          backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '6px 10px', fontSize: '12px'
-        }}>
-          <div style={{ color: 'var(--blue-primary)', fontWeight: 'bold' }}>Call tecnici</div>
-          <div style={{ color: 'var(--text-muted)', fontSize: '10px' }}>Ore 08:00</div>
+        {/* Card Evento 1: Call Tecnici */}
+        <div className="absolute top-0.5 left-14 right-1 h-14 bg-accent-blue/10 border border-accent-blue/20 rounded-xl p-2.5 flex flex-col justify-center">
+          <div className="text-accent-blue font-bold text-xs">Call tecnici</div>
+          <div className="text-accent-blue/60 text-[10px] font-bold mt-0.5">Ore 08:00</div>
         </div>
 
-        {/* Card Evento 2: Manutenzione (Posizionata sopra le ore 11-12) */}
-        <div style={{
-          position: 'absolute', top: '135px', left: '55px', right: '5px', height: '55px',
-          backgroundColor: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '6px 10px', fontSize: '12px'
-        }}>
-          <div style={{ color: '#b45309', fontWeight: 'bold' }}>Manutenzione bicicletta 002AS</div>
-          <div style={{ color: '#b45309', fontSize: '10px' }}>Ore 11:00</div>
+        {/* Card Evento 2: Manutenzione */}
+        <div className="absolute top-[135px] left-14 right-1 h-14 bg-stato-inricarica/10 border border-stato-inricarica/20 rounded-xl p-2.5 flex flex-col justify-center">
+          <div className="text-stato-inricarica font-bold text-xs">Manutenzione bicicletta 002AS</div>
+          <div className="text-stato-inricarica/60 text-[10px] font-bold mt-0.5">Ore 11:00</div>
         </div>
 
       </div>
