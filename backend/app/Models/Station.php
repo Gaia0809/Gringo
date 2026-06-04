@@ -34,4 +34,8 @@ class Station extends Model
         return $this->belongsTo(Status::class, 'status_id');
     }
 
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class);
+    }
 }
