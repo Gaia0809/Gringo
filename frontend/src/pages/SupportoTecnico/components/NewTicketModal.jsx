@@ -98,12 +98,12 @@ const NewTicketModal = ({ open, onClose, onSave }) => {
             </Field>
 
             <Field label="Stazione (Opzionale)">
-              <select value={stationId} onChange={e => setStationId(e.target.value)} className={inputClass}>
-                <option value="">Nessuna stazione</option>
-                {stations.map(s => (
-                  <option key={s.id} value={s.id}>{s.label}</option>
-                ))}
-              </select>
+              <SearchableSelect
+                value={stationId}
+                onChange={setStationId}
+                options={stations}
+                placeholder="Nessuna stazione"
+              />
             </Field>
 
             <Field label="Priorità">
