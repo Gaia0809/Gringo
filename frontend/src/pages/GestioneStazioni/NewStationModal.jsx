@@ -1,5 +1,5 @@
 import  { useState, useEffect } from 'react';
-import api from '../../../api';
+import api from '../../api';
 
 const NewStationModal = ({ open, onClose, onStationAdded }) => {
   const [formData, setFormData] = useState({

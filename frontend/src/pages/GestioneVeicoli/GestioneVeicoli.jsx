@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import api from '../../api.js';
 import VehicleModal from './components/VehicleModal.jsx';
+import Card from '../../components/common/Card.jsx';
+import StatusBadge from '../../components/common/StatusBadge.jsx';
+import Button from '../../components/common/Button.jsx';
+import SearchInput from '../../components/common/SearchInput.jsx';
 
 // Componente interno per l'anello multi-segmento
 function StatusRing({ data, label }) {
@@ -131,18 +135,6 @@ export default function GestioneVeicoli() {
     v.vehicle_model?.name?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const getStatusColor = (statusName) => {
-    const s = statusName?.toLowerCase() || '';
-    if (s.includes('disponibile')) return 'bg-stato-disponibile/20 text-brand-testo border-stato-disponibile';
-    if (s.includes('attivo') || s.includes('in uso')) return 'bg-stato-attivo/20 text-brand-testo border-stato-attivo';
-    if (s.includes('manutenzione')) return 'bg-stato-manutenzione/20 text-brand-testo border-stato-manutenzione';
-    if (s.includes('carica')) return 'bg-stato-inricarica/20 text-brand-testo border-stato-inricarica';
-    if (s.includes('guasto')) return 'bg-stato-guasto/20 text-brand-testo border-stato-guasto';
-    if (s.includes('rubato')) return 'bg-stato-rubato/20 text-brand-testo border-stato-rubato';
-    if (s.includes('offline') || s.includes('inattivo') || s.includes('fuori area')) return 'bg-stato-offline/20 text-brand-testo border-stato-offline';
-    return 'bg-gray-100 text-gray-600 border-gray-200';
-  };
-
   // Calcolo KPI dinamici per 7 stati
   const stats = {
     auto: { total: 0, disponibile: 0, attivo: 0, inricarica: 0, manutenzione: 0, offline: 0, guasto: 0, rubato: 0 },
@@ -178,7 +170,7 @@ export default function GestioneVeicoli() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         
         {/* Pannello Anelli Circolari */}
-        <div className="card flex flex-col md:flex-row justify-around items-center gap-6">
+        <Card className="flex flex-col md:flex-row justify-around items-center gap-6">
           
           {/* Legenda Stati */}
           <div className="flex flex-col gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider self-start md:self-center">
@@ -195,10 +187,10 @@ export default function GestioneVeicoli() {
           <StatusRing data={stats.bici} label="Biciclette" />
           <StatusRing data={stats.monopattini} label="Monopattini" />
 
-        </div>
+        </Card>
 
         {/* Pannello Istogramma Settimanale (Dati fittizi per ora) */}
-        <div className="card">
+        <Card>
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-base font-bold text-brand-testo">Utilizzo Mezzi</h3>
             <div className="flex gap-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
@@ -220,32 +212,25 @@ export default function GestioneVeicoli() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
       </div>
 
       {/* Toolbar Ricerca e Inserimento */}
       <div className="flex justify-between items-center">
-        <div className="flex items-center bg-brand-sfondo px-4 py-2.5 rounded-xl border border-gray-200 shadow-sm w-80">
-          <span className="text-gray-400 mr-2">🔍</span>
-          <input 
-            type="text" 
-            placeholder="Cerca per targa, ID o modello..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border-none outline-none text-sm w-full bg-transparent text-brand-testo font-medium placeholder:text-gray-400"
-          />
-        </div>
-        <button 
-          onClick={openCreate}
-          className="bg-brand-testo text-brand-sfondo px-6 py-2.5 rounded-xl font-bold text-sm shadow-md hover:opacity-90 active:scale-95 transition-all cursor-pointer"
-        >
+        <SearchInput 
+          placeholder="Cerca per targa, ID o modello..." 
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-80"
+        />
+        <Button onClick={openCreate}>
           + Aggiungi Veicolo
-        </button>
+        </Button>
       </div>
 
       {/* Tabella Dati */}
-      <div className="card !p-0 overflow-hidden">
+      <Card noPadding className="overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-gray-100 text-[11px] font-bold text-gray-400 uppercase tracking-[0.1em] bg-brand-sfondowidget/50">
@@ -282,9 +267,7 @@ export default function GestioneVeicoli() {
                   <td className="p-5 text-sm font-semibold text-gray-600">{veicolo.km_total} km</td>
                   <td className="p-5 text-sm font-semibold text-gray-600">{veicolo.station?.name || veicolo.position || 'In movimento'}</td>
                   <td className="p-5">
-                    <span className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusColor(veicolo.status?.name)}`}>
-                      {veicolo.status?.name || 'Sconosciuto'}
-                    </span>
+                    <StatusBadge status={veicolo.status?.name} variant="soft" />
                   </td>
                   <td className="p-5">
                     <div className="flex justify-center items-center gap-4 text-gray-300">
@@ -298,7 +281,7 @@ export default function GestioneVeicoli() {
             )}
           </tbody>
         </table>
-      </div>
+      </Card>
 
       <VehicleModal 
         open={isModalOpen} 
@@ -311,3 +294,4 @@ export default function GestioneVeicoli() {
     </div>
   );
 }
+

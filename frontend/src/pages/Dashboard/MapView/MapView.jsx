@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import Map, { Marker } from 'react-map-gl/maplibre';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import SearchInput from '../../../components/common/SearchInput.jsx';
 
 export default function MapView({ onExpand, stations = [], vehicles = [] }) {
   const [selectedMarker, setSelectedMarker] = useState(null);
@@ -125,16 +126,12 @@ export default function MapView({ onExpand, stations = [], vehicles = [] }) {
         
         {/* FILTRI DI RICERCA FLUTTUANTI SOVRAPPOSTI */}
         <div className="absolute top-5 left-5 z-10 flex gap-3 items-center">
-          <div className="flex items-center bg-brand-sfondo px-4 py-2 rounded-xl shadow-md border border-gray-100">
-            <span className="mr-2 text-gray-400">🔍</span>
-            <input 
-              type="text" 
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Cerca ID, Targa, Stazione" 
-              className="border-none outline-none text-sm w-44 bg-transparent text-brand-testo font-semibold" 
-            />
-          </div>
+          <SearchInput 
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Cerca ID, Targa, Stazione" 
+            className="w-56"
+          />
 
           <select 
             value={typeFilter}
