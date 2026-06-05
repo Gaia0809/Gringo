@@ -36,7 +36,7 @@ use HasFactory;
             if ($vehicle->in_movement) {
                 // Se si muove, non ha una stazione
                 $vehicle->station_id = null;
-            } else {
+            } else if ($vehicle->station_id) {
                 // Se è fermo in una stazione, la posizione è null (ereditata dalla stazione)
                 $vehicle->position = null;
             }
@@ -45,7 +45,13 @@ use HasFactory;
 
     public function getCoordinatesAttribute()
     {
-        $rawPosition = $this->in_movement ? $this->position : ($this->station ? $this->station->position : null);
+        // Se il veicolo è in una stazione, usiamo la posizione della stazione
+        if ($this->station_id && $this->station) {
+            $rawPosition = $this->station->position;
+        } else {
+            // Altrimenti usiamo la sua posizione GPS (se in movimento o se lasciato in strada)
+            $rawPosition = $this->position;
+        }
 
         if (!$rawPosition) {
             return null;
