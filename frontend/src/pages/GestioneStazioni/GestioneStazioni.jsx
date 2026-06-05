@@ -1,19 +1,12 @@
 import { useState, useEffect } from 'react';
 import api from '../../api';
-import NewStationModal from './components/NewStationModal';
+import NewStationModal from './NewStationModal';
+import Card from '../../components/common/Card.jsx';
+import StatusBadge from '../../components/common/StatusBadge.jsx';
+import Button from '../../components/common/Button.jsx';
+import SearchInput from '../../components/common/SearchInput.jsx';
 
-// Funzioni di supporto per colori e icone
-const getStatusColor = (status) => {
-  if (!status) return 'bg-gray-200 text-gray-700';
-  
-  const s = status.toUpperCase();
-  if (s.includes('DISPONIBILE') || s.includes('ATTIV')) return 'bg-stato-attivo text-brand-testo';
-  if (s.includes('GUASTO')) return 'bg-stato-guasto text-white';
-  if (s.includes('MANUTENZIONE')) return 'bg-stato-manutenzione text-white';
-  if (s.includes('CARICA') || s.includes('PIENA')) return 'bg-stato-inricarica text-brand-testo';
-  return 'bg-gray-200 text-gray-700';
-};
-
+// Funzioni di supporto per icone
 const getVehicleIcon = (type) => {
   if (!type) return null;
   const t = type.toUpperCase();
@@ -110,27 +103,17 @@ const GestioneStazioni = () => {
   return (
     <div className="min-h-screen bg-brand-sfondoelementi p-6 font-sans flex flex-col">
       
-      {/* Header Pagina */}
+      {/* Header Pagina (Uniformato con Gestione Veicoli) */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-brand-testo">Gestione Stazioni</h1>
-        <div className="flex gap-4">
-          <div className="flex items-center bg-brand-sfondo px-4 py-2 rounded-xl border border-gray-200 shadow-sm w-72">
-            <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            <input 
-              type="text" 
-              placeholder="Cerca per nome o indirizzo..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border-none outline-none text-sm w-full bg-transparent text-brand-testo" 
-            />
-          </div>
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="bg-brand-testo text-brand-sfondo px-4 py-2 rounded-xl font-bold text-sm shadow-md hover:opacity-90 transition-opacity cursor-pointer"
-          >
-            + Aggiungi Stazione
-          </button>
-        </div>
+        <SearchInput 
+          placeholder="Cerca per nome o indirizzo..." 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-80"
+        />
+        <Button onClick={() => setIsModalOpen(true)}>
+          + Aggiungi Stazione
+        </Button>
       </div>
 
       {/* Griglia Stazioni */}
@@ -144,87 +127,98 @@ const GestioneStazioni = () => {
             const available = Math.max(0, station.capacity - station.present);
             const fillPercentage = station.capacity > 0 ? (station.present / station.capacity) * 100 : 0;
             
-            const displayStatus = (station.present >= station.capacity && station.capacity > 0) ? 'PIENA' : station.status;
+            // Pulizia del nome: se contiene " - Tipologia", lo togliamo
+            const cleanName = station.name.split(' - ')[0];
+
+            // Mostriamo il badge SEMPRE per consistenza, ma con variante diversa
+            const isFull = station.present >= station.capacity && station.capacity > 0;
+            const isAlert = isFull || station.status.toLowerCase() !== 'disponibile';
+            const displayStatus = isFull ? 'PIENA' : station.status;
 
             return (
-              <div key={station.id} className="bg-brand-sfondo rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col h-full relative">
+              <Card key={station.id} className="flex flex-col h-full relative">
                 
-                {/* Intestazione */}
-                <div className="flex justify-between items-start mb-4">
-                  <span className={`text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full ${getStatusColor(displayStatus)}`}>
-                    {displayStatus}
-                  </span>
+                {/* Intestazione: Nome, Badge e Menu sulla stessa linea */}
+                <div className="flex justify-between items-start mb-1 h-8">
+                  <h3 className="text-lg font-extrabold text-brand-testo leading-tight truncate mr-2" title={cleanName}>
+                    {cleanName}
+                  </h3>
                   
-                  {/* Menu Azioni Tre Puntini Interattivo */}
-                  <div className="relative">
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenMenuId(openMenuId === station.id ? null : station.id);
-                      }}
-                      className="text-gray-400 hover:text-brand-testo transition-colors cursor-pointer p-1 rounded-lg hover:bg-gray-100"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
-                    </button>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <StatusBadge 
+                      status={displayStatus} 
+                      variant={isAlert ? 'solid' : 'soft'} 
+                    />
+                    
+                    {/* Menu Azioni Tre Puntini */}
+                    <div className="relative">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(openMenuId === station.id ? null : station.id);
+                        }}
+                        className="text-gray-400 hover:text-brand-testo transition-colors cursor-pointer p-1 rounded-lg hover:bg-gray-100"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+                      </button>
 
-                    {openMenuId === station.id && (
-                      <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-20">
-                        <button 
-                          onClick={(e) => handleEditPlaceholder(station.id, e)}
-                          className="w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
-                        >
-                          Modifica
-                        </button>
-                        <button 
-                          onClick={(e) => handleDeleteStation(station.id, e)}
-                          className="w-full text-left px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors"
-                        >
-                          Elimina
-                        </button>
-                      </div>
-                    )}
+                      {openMenuId === station.id && (
+                        <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-20">
+                          <button 
+                            onClick={(e) => handleEditPlaceholder(station.id, e)}
+                            className="w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            Modifica
+                          </button>
+                          <button 
+                            onClick={(e) => handleDeleteStation(station.id, e)}
+                            className="w-full text-left px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            Elimina
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                <div className="mb-4 flex-1">
-                  <h3 className="text-lg font-bold text-brand-testo leading-tight">{station.name}</h3>
-                  <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                    <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    {station.address}
-                  </p>
-                </div>
+                {/* Indirizzo spostato sotto il nome ma integrato meglio */}
+                <p className="text-[11px] text-gray-500 flex items-center gap-1.5 mb-6 font-medium">
+                  <svg className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                  <span className="truncate">{station.address}</span>
+                </p>
 
-                {/* Corpo Centrale */}
-                <div className="mb-5">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black text-brand-testo">{station.present}</span>
-                    <span className="text-lg font-bold text-gray-400">/ {station.capacity}</span>
-                  </div>
-                  <div className="flex justify-between items-center mt-1 mb-2">
-                    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Mezzi presenti / Capienza</span>
-                    <span className="text-xs font-bold text-brand-testo bg-brand-sfondoelementi px-2 py-1 rounded-md">
-                      {available} liberi
-                    </span>
+                {/* Corpo Centrale: Focus sui Numeri */}
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-1.5 mb-2">
+                    <span className="text-4xl font-black text-brand-testo tracking-tighter">{station.present}</span>
+                    <span className="text-lg font-bold text-gray-300">/ {station.capacity}</span>
                   </div>
                   
                   {/* Progress Bar */}
-                  <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden shadow-inner mb-2">
                     <div 
-                      className={`h-full rounded-full transition-all duration-500 ${fillPercentage >= 100 ? 'bg-stato-inricarica' : 'bg-stato-attivo'}`}
+                      className={`h-full rounded-full transition-all duration-700 ${isFull ? 'bg-stato-inricarica' : 'bg-stato-attivo'}`}
                       style={{ width: `${Math.min(fillPercentage, 100)}%` }}
                     ></div>
                   </div>
-                </div>
 
-                {/* Footer */}
-                <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-auto">
-                  <div className="flex items-center gap-2 text-sm font-bold text-gray-600">
-                    {getVehicleIcon(station.type)}
-                    <span>{station.present} {station.type}</span>
+                  <div className="flex justify-end text-[10px] font-bold uppercase tracking-widest">
+                    <span className={available === 0 ? 'text-stato-guasto' : 'text-brand-testo'}>
+                      {available} posti liberi
+                    </span>
                   </div>
                 </div>
 
-              </div>
+                {/* Footer: Semplificato con solo tipo veicolo */}
+                <div className="pt-4 border-t border-gray-50 flex items-center justify-between mt-auto">
+                  <div className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide truncate mr-2">
+                    {getVehicleIcon(station.type)}
+                    <span className="truncate">{station.type}</span>
+                  </div>
+                </div>
+
+              </Card>
             );
           })}
         </div>
