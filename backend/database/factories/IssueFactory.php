@@ -18,12 +18,15 @@ class IssueFactory extends Factory
      */
     public function definition(): array
     {
+        $lat = 45.9566 + (fake()->latitude(-100, 100) / 1000);
+        $lng = 12.6606 + (fake()->longitude(-100, 100) / 1000);
+
         return [
             'booking_id' => Booking::inRandomOrder()->first()?->id,
             'title' => $this->faker->sentence(),
             'description' => $this->faker->paragraph(),
             'photo' => $this->faker->imageUrl(),
-            'position' => $this->faker->latitude() . ',' . $this->faker->longitude(),
+            'position' => "$lat, $lng",
         ];
     }
 }

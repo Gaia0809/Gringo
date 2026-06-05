@@ -1,5 +1,8 @@
-export default function Agenda() {
+export default function Agenda({ interventions }) {
   const ore = ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+
+  // Mostriamo solo gli interventi che hanno una data/ora valida o i primi della lista come esempio
+  const plannedInterventions = (interventions || []).slice(0, 2);
 
   return (
     <div className="card flex flex-col relative h-full">
@@ -8,9 +11,9 @@ export default function Agenda() {
       
       <div className="relative flex-1 flex flex-col justify-between">
         
-        {/* Linea orario corrente (10:00) */}
-        <div className="absolute top-[23%] left-0 right-0 border-t-2 border-accent-blue z-10 flex items-center">
-          <span className="bg-accent-blue text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-11 -translate-y-1/2 shadow-sm">10:00</span>
+        {/* Linea orario corrente (approssimativa) */}
+        <div className="absolute top-[30%] left-0 right-0 border-t-2 border-accent-blue z-10 flex items-center">
+          <span className="bg-accent-blue text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-11 -translate-y-1/2 shadow-sm">11:30</span>
         </div>
 
         {/* Slot Orari */}
@@ -20,17 +23,32 @@ export default function Agenda() {
           </div>
         ))}
 
-        {/* Card Evento 1: Call Tecnici */}
-        <div className="absolute top-0.5 left-14 right-1 h-14 bg-accent-blue/10 border border-accent-blue/20 rounded-xl p-2.5 flex flex-col justify-center">
-          <div className="text-accent-blue font-bold text-xs">Call tecnici</div>
-          <div className="text-accent-blue/60 text-[10px] font-bold mt-0.5">Ore 08:00</div>
-        </div>
+        {/* Card Interventi Reali (Posizionamento fittizio per demo) */}
+        {plannedInterventions.map((int, index) => (
+          <div 
+            key={int.id}
+            className="absolute left-14 right-1 bg-accent-blue/10 border border-accent-blue/20 rounded-xl p-2.5 flex flex-col justify-center"
+            style={{ 
+              top: `${index * 80 + 10}px`, 
+              height: '60px',
+              backgroundColor: index % 2 === 0 ? 'rgba(var(--color-accent-blue-rgb), 0.1)' : 'rgba(var(--color-stato-inricarica-rgb), 0.1)',
+              borderColor: index % 2 === 0 ? 'rgba(var(--color-accent-blue-rgb), 0.2)' : 'rgba(var(--color-stato-inricarica-rgb), 0.2)'
+            }}
+          >
+            <div className={`font-bold text-xs ${index % 2 === 0 ? 'text-accent-blue' : 'text-stato-inricarica'}`}>
+              {int.category?.name || 'Intervento'}
+            </div>
+            <div className="text-gray-500 text-[10px] font-bold mt-0.5">
+              Asset: {int.issue?.booking?.vehicle?.license_plate || 'n.d.'}
+            </div>
+          </div>
+        ))}
 
-        {/* Card Evento 2: Manutenzione */}
-        <div className="absolute top-[135px] left-14 right-1 h-14 bg-stato-inricarica/10 border border-stato-inricarica/20 rounded-xl p-2.5 flex flex-col justify-center">
-          <div className="text-stato-inricarica font-bold text-xs">Manutenzione bicicletta 002AS</div>
-          <div className="text-stato-inricarica/60 text-[10px] font-bold mt-0.5">Ore 11:00</div>
-        </div>
+        {plannedInterventions.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-xs italic">
+            Nessun evento oggi
+          </div>
+        )}
 
       </div>
     </div>

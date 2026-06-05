@@ -31,7 +31,10 @@ const NewTicketModal = ({ open, onClose, onSave }) => {
       api.get('/technicians'),
     ]).then(([v, s, t]) => {
       setVehicles((v.data || []).map(item => ({ ...item, label: item.license_plate || `ID: ${item.id}` })))
-      setStations((s.data || []).map(item => ({ ...item, label: item.name })))
+      setStations((s.data || []).map(item => ({ 
+        ...item, 
+        label: `${item.name} (${item.vehicle_type?.name || 'Tipo n.d.'})` 
+      })))
       setTechnicians(t.data || [])
     }).catch(err => console.error("Errore di caricamento form:", err))
   }, [open])

@@ -1,16 +1,12 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Map, { Marker } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-const initialMarkers = [
-  { id: 1, name: 'Stazione - SD-12', type: 'stazione', latitude: 45.9566, longitude: 12.6606, info: 'Batteria: 8% | Bici disponibili: 2' },
-  { id: 2, name: 'Stazione - CF-11', type: 'stazione', latitude: 45.9540, longitude: 12.6700, info: 'Batteria: 12% | Bici disponibili: 1' },
-  { id: 3, name: 'Bici in movimento #102', type: 'bici', latitude: 45.9502, longitude: 12.6550, info: 'Velocità: 15 km/h | Batteria: 76%' },
-];
-
-export default function MapView({ onExpand }) {
-  const [markers] = useState(initialMarkers);
+export default function MapView({ onExpand, stations, vehicles }) {
   const [selectedMarker, setSelectedMarker] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState('Ecosistema');
+  const [statusFilter, setStatusFilter] = useState('Stato');
 
   const [viewState, setViewState] = useState({
     longitude: 12.6606,
@@ -18,25 +14,108 @@ export default function MapView({ onExpand }) {
     zoom: 13
   });
 
+  const markers = useMemo(() => {
+    let sMarkers = (stations || []).map(s => ({
+      id: `s-${s.id}`,
+      name: s.name,
+      type: 'stazione',
+      latitude: s.coordinates?.[0],
+      longitude: s.coordinates?.[1],
+      vehicleTypeName: s.vehicle_type?.name,
+      statusName: s.status?.name,
+      info: `Capacità: ${s.capacity} | Veicoli: ${s.vehicles_count}`
+    }));
+
+    let vMarkers = (vehicles || []).map(v => {
+      // Add a tiny jitter if the vehicle is not in movement (so it's at a station)
+      // to avoid perfect overlapping of markers
+      const jitterLat = v.in_movement ? 0 : (Math.random() - 0.5) * 0.0004;
+      const jitterLng = v.in_movement ? 0 : (Math.random() - 0.5) * 0.0004;
+
+      return {
+        id: `v-${v.id}`,
+        name: `${v.vehicle_model?.name || 'Veicolo'} - ${v.license_plate || v.id}`,
+        type: 'veicolo',
+        latitude: (v.coordinates?.[0] || 0) + jitterLat,
+        longitude: (v.coordinates?.[1] || 0) + jitterLng,
+        vehicleTypeName: v.vehicle_model?.vehicle_type?.name,
+        statusName: v.status?.name,
+        info: `Batteria: ${v.battery_percentage}% | Stato: ${v.status?.name || 'n.d.'}`
+      };
+    });
+
+    let allMarkers = [...sMarkers, ...vMarkers].filter(m => m.latitude && m.longitude);
+
+    // Apply Filters
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      allMarkers = allMarkers.filter(m => 
+        m.name.toLowerCase().includes(q) || 
+        m.id.toLowerCase().includes(q)
+      );
+    }
+
+    if (typeFilter !== 'Ecosistema') {
+      const typeMap = {
+        'Macchine': 'Macchina Elettrica',
+        'Biciclette': 'Bicicletta Elettrica',
+        'Monopattini': 'Monopattino Elettrico'
+      };
+      allMarkers = allMarkers.filter(m => m.vehicleTypeName === typeMap[typeFilter]);
+    }
+
+    if (statusFilter !== 'Stato') {
+      allMarkers = allMarkers.filter(m => m.statusName === statusFilter);
+    }
+
+    return allMarkers;
+  }, [stations, vehicles, searchQuery, typeFilter, statusFilter]);
+
+  const getMarkerColor = (marker) => {
+    if (marker.type === 'stazione') {
+      return marker.statusName === 'Disponibile' ? 'bg-stato-attivo' : 'bg-gray-400';
+    }
+    
+    switch (marker.statusName) {
+      case 'Disponibile': return 'bg-accent-blue';
+      case 'Guasto': return 'bg-stato-guasto';
+      case 'In Manutenzione': return 'bg-mezzo-moto';
+      case 'In Carica': return 'bg-stato-inricarica';
+      default: return 'bg-gray-400';
+    }
+  };
+
+  // KPIs
+  const avgBattery = vehicles.length > 0 
+    ? Math.round(vehicles.reduce((acc, v) => acc + (v.battery_percentage || 0), 0) / vehicles.length) 
+    : 0;
+
+  const inMovement = vehicles.filter(v => v.in_movement).length;
+
   return (
     <div className="flex flex-col gap-5 flex-1">
       
       {/* KPI Panel Superiori */}
       <div className="grid grid-cols-[2fr_1fr_1fr] gap-4">
-        <div className="card p-3 border-t-4 border-t-stato-guasto">
-          <div className="text-[10px] font-bold text-stato-guasto uppercase tracking-widest">Alert Batteria Stazioni &lt; 15%</div>
-          <div className="flex text-xs mt-1.5 gap-5 font-semibold">
-            <span>Stazione - SD-12 <strong className="text-stato-guasto ml-1">8%</strong></span>
-            <span>Stazione - CF-11 <strong className="text-stato-guasto ml-1">12%</strong></span>
+        <div className="card p-3 border-t-4 border-t-stato-guasto overflow-hidden">
+          <div className="text-[10px] font-bold text-stato-guasto uppercase tracking-widest">Alert Veicoli Batteria &lt; 15%</div>
+          <div className="flex text-xs mt-1.5 gap-5 font-semibold overflow-x-auto whitespace-nowrap pb-1">
+            {vehicles.filter(v => v.battery_percentage < 15).length > 0 ? (
+              vehicles.filter(v => v.battery_percentage < 15).map(v => (
+                <span key={v.id}>{v.license_plate || v.id} <strong className="text-stato-guasto ml-1">{v.battery_percentage}%</strong></span>
+              ))
+            ) : (
+              <span className="text-gray-400">Tutti i veicoli carichi</span>
+            )}
           </div>
         </div>
         <div className="card p-3 text-center flex flex-col justify-center">
           <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Batteria Media</div>
-          <div className="text-2xl font-bold text-stato-attivo leading-none">85%</div>
+          <div className="text-2xl font-bold text-stato-attivo leading-none">{avgBattery}%</div>
         </div>
         <div className="card p-3 text-center flex flex-col justify-center">
           <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">In Movimento</div>
-          <div className="text-2xl font-bold text-brand-testo leading-none">92/150</div>
+          <div className="text-2xl font-bold text-brand-testo leading-none">{inMovement}/{vehicles.length}</div>
         </div>
       </div>
 
@@ -49,25 +128,34 @@ export default function MapView({ onExpand }) {
             <span className="mr-2 text-gray-400">🔍</span>
             <input 
               type="text" 
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
               placeholder="Cerca ID, Targa, Stazione" 
               className="border-none outline-none text-sm w-44 bg-transparent text-brand-testo font-semibold" 
             />
           </div>
 
-          <select className="px-4 py-2 bg-brand-sfondo rounded-xl shadow-md border border-gray-100 text-sm font-semibold text-brand-testo outline-none cursor-pointer hover:bg-gray-50 transition-colors">
+          <select 
+            value={typeFilter}
+            onChange={e => setTypeFilter(e.target.value)}
+            className="px-4 py-2 bg-brand-sfondo rounded-xl shadow-md border border-gray-100 text-sm font-semibold text-brand-testo outline-none cursor-pointer hover:bg-gray-50 transition-colors"
+          >
             <option>Ecosistema</option>
             <option>Macchine</option>
             <option>Biciclette</option>
             <option>Monopattini</option>
           </select>
 
-          <select className="px-4 py-2 bg-brand-sfondo rounded-xl shadow-md border border-gray-100 text-sm font-semibold text-brand-testo outline-none cursor-pointer hover:bg-gray-50 transition-colors">
+          <select 
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            className="px-4 py-2 bg-brand-sfondo rounded-xl shadow-md border border-gray-100 text-sm font-semibold text-brand-testo outline-none cursor-pointer hover:bg-gray-50 transition-colors"
+          >
             <option>Stato</option>
             <option>Disponibile</option>
-            <option>In uso</option>
+            <option>In Manutenzione</option>
             <option>Guasto</option>
-            <option>Manutenzione</option>
-            <option>Offline</option>
+            <option>In Carica</option>
           </select>
         </div>
 
@@ -88,7 +176,7 @@ export default function MapView({ onExpand }) {
               <div
                 onMouseEnter={() => setSelectedMarker(marker)}
                 onMouseLeave={() => setSelectedMarker(null)}
-                className={`w-4 h-4 rounded-full border-2 border-white shadow-lg cursor-pointer transform hover:scale-125 transition-transform ${marker.type === 'stazione' ? 'bg-stato-guasto' : 'bg-accent-blue'}`}
+                className={`w-4 h-4 rounded-full border-2 border-white shadow-lg cursor-pointer transform hover:scale-125 transition-transform ${getMarkerColor(marker)}`}
               />
             </Marker>
           ))}
