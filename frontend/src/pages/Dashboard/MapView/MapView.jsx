@@ -17,6 +17,7 @@ export default function MapView({ onExpand, stations = [], vehicles = [] }) {
   });
 
   const markers = useMemo(() => {
+    // 1. Process Stations (No change to logic)
     let sMarkers = stations.map(s => ({
       id: `s-${s.id}`,
       name: s.name,
@@ -25,14 +26,33 @@ export default function MapView({ onExpand, stations = [], vehicles = [] }) {
       longitude: s.coordinates?.[1],
       vehicleTypeName: s.vehicle_type?.name,
       statusName: s.status?.name,
-      info: `Capacità: ${s.capacity} | Veicoli: ${s.vehicles_count}`
+      info: `Capacità: ${s.capacity} | Veicoli: ${s.vehicles_count}`,
+      // Station Color Logic
+      colorClass: s.status?.name === 'Disponibile' ? 'bg-stato-attivo' : 'bg-gray-400'
     }));
 
+    // 2. Process Vehicles (Robust, data-driven mapping)
     let vMarkers = vehicles.map(v => {
-      // Add a tiny jitter if the vehicle is not in movement (so it's at a station)
-      // to avoid perfect overlapping of markers
-      const jitterLat = v.in_movement ? 0 : (Math.random() - 0.5) * 0.0004;
-      const jitterLng = v.in_movement ? 0 : (Math.random() - 0.5) * 0.0004;
+      // Stabilize jitter using a deterministic hash of vehicle ID
+      const seed = parseInt(v.id) || 0;
+      const jitterLat = v.in_movement ? 0 : ((seed % 1000) / 1000 - 0.5) * 0.0004;
+      const jitterLng = v.in_movement ? 0 : (((seed * 7) % 1000) / 1000 - 0.5) * 0.0004;
+
+      // Determine State and Color
+      let displayStatus = v.status?.name || 'n.d.';
+      let colorClass = 'bg-gray-400';
+
+      if (v.in_movement) {
+        displayStatus = 'In Movimento';
+        colorClass = 'bg-stato-attivo'; // Verde
+      } else {
+        switch (v.status?.name) {
+          case 'Disponibile': colorClass = 'bg-accent-blue'; break; // Blu
+          case 'Guasto': colorClass = 'bg-stato-guasto'; break;
+          case 'In Manutenzione': colorClass = 'bg-stato-manutenzione'; break;
+          case 'In Carica': colorClass = 'bg-stato-inricarica'; break;
+        }
+      }
 
       return {
         id: `v-${v.id}`,
@@ -42,13 +62,15 @@ export default function MapView({ onExpand, stations = [], vehicles = [] }) {
         longitude: (v.coordinates?.[1] || 0) + jitterLng,
         vehicleTypeName: v.vehicle_model?.vehicle_type?.name,
         statusName: v.status?.name,
-        info: `Batteria: ${v.battery_percentage}% | Stato: ${v.status?.name || 'n.d.'}`
+        in_movement: v.in_movement,
+        info: `Batteria: ${v.battery_percentage}% | Stato: ${displayStatus}`,
+        colorClass: colorClass
       };
     });
 
     let allMarkers = [...sMarkers, ...vMarkers].filter(m => m.latitude !== undefined && m.longitude !== undefined);
 
-    // Apply Filters
+    // 3. Robust Filtering
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       allMarkers = allMarkers.filter(m => 
@@ -63,28 +85,19 @@ export default function MapView({ onExpand, stations = [], vehicles = [] }) {
         'Biciclette': 'Bicicletta Elettrica',
         'Monopattini': 'Monopattino Elettrico'
       };
-      allMarkers = allMarkers.filter(m => m.vehicleTypeName === typeMap[typeFilter]);
+      allMarkers = allMarkers.filter(m => m.type === 'stazione' || m.vehicleTypeName === typeMap[typeFilter]);
     }
 
     if (statusFilter !== 'Stato') {
-      allMarkers = allMarkers.filter(m => m.statusName === statusFilter);
+      // Only filter vehicles by status, always show stations
+      allMarkers = allMarkers.filter(m => m.type === 'stazione' || m.statusName === statusFilter);
     }
 
     return allMarkers;
   }, [stations, vehicles, searchQuery, typeFilter, statusFilter]);
 
   const getMarkerColor = (marker) => {
-    if (marker.type === 'stazione') {
-      return marker.statusName === 'Disponibile' ? 'bg-stato-attivo' : 'bg-gray-400';
-    }
-    
-    switch (marker.statusName) {
-      case 'Disponibile': return 'bg-stato-disponibile';
-      case 'Guasto': return 'bg-stato-guasto';
-      case 'In Manutenzione': return 'bg-stato-manutenzione';
-      case 'In Carica': return 'bg-stato-inricarica';
-      default: return 'bg-gray-400';
-    }
+    return marker.colorClass;
   };
 
   // KPIs

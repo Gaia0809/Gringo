@@ -23,38 +23,61 @@ export default function MappaEspansa({ onClose, stations, vehicles, issues }) {
   });
 
   const markers = useMemo(() => {
+    // 1. Process Stations
     let sMarkers = (stations || []).map(s => ({
       id: `s-${s.id}`,
-      name: s.name,
       type: 'stazione',
+      name: s.name,
       latitude: s.coordinates?.[0],
       longitude: s.coordinates?.[1],
       vehicleTypeName: s.vehicle_type?.name,
       statusName: s.status?.name,
+      info: `Capacità: ${s.capacity} | Veicoli: ${s.vehicles_count}`,
+      colorClass: s.status?.name === 'Disponibile' ? 'bg-stato-attivo' : 'bg-gray-400'
     }));
 
+    // 2. Process Vehicles (Robust, data-driven mapping with stable jitter)
     let vMarkers = (vehicles || []).map(v => {
-      const jitterLat = v.in_movement ? 0 : (Math.random() - 0.5) * 0.0004;
-      const jitterLng = v.in_movement ? 0 : (Math.random() - 0.5) * 0.0004;
+      const seed = parseInt(v.id) || 0;
+      const jitterLat = v.in_movement ? 0 : ((seed % 1000) / 1000 - 0.5) * 0.0004;
+      const jitterLng = v.in_movement ? 0 : (((seed * 7) % 1000) / 1000 - 0.5) * 0.0004;
+
+      let displayStatus = v.status?.name || 'n.d.';
+      let colorClass = 'bg-gray-400';
+
+      if (v.in_movement) {
+        displayStatus = 'In Movimento';
+        colorClass = 'bg-stato-attivo';
+      } else {
+        switch (v.status?.name) {
+          case 'Disponibile': colorClass = 'bg-accent-blue'; break;
+          case 'Guasto': colorClass = 'bg-stato-guasto'; break;
+          case 'In Manutenzione': colorClass = 'bg-stato-manutenzione'; break;
+          case 'In Carica': colorClass = 'bg-stato-inricarica'; break;
+        }
+      }
 
       return {
         id: `v-${v.id}`,
-        name: `${v.vehicle_model?.name} - ${v.license_plate}`,
         type: 'veicolo',
+        name: `${v.vehicle_model?.name || 'Veicolo'} - ${v.license_plate || v.id}`,
         latitude: (v.coordinates?.[0] || 0) + jitterLat,
         longitude: (v.coordinates?.[1] || 0) + jitterLng,
         vehicleTypeName: v.vehicle_model?.vehicle_type?.name,
         statusName: v.status?.name,
         in_movement: v.in_movement,
+        info: `Batteria: ${v.battery_percentage}% | Stato: ${displayStatus}`,
+        colorClass: colorClass
       };
     });
 
-    let allMarkers = [...sMarkers, ...vMarkers].filter(m => m.latitude && m.longitude);
+    let allMarkers = [...sMarkers, ...vMarkers].filter(m => m.latitude !== undefined && m.longitude !== undefined);
 
+    // 3. Robust Filtering
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      allMarkers = allMarkers.filter(m =>
-        m.name.toLowerCase().includes(q) ||
+      allMarkers = allMarkers.filter(m => 
+        m.name.toLowerCase().includes(q) || 
         m.id.toLowerCase().includes(q)
       );
     }
@@ -65,30 +88,18 @@ export default function MappaEspansa({ onClose, stations, vehicles, issues }) {
         'Biciclette': 'Bicicletta Elettrica',
         'Monopattini': 'Monopattino Elettrico'
       };
-      allMarkers = allMarkers.filter(m => m.vehicleTypeName === typeMap[typeFilter]);
+      allMarkers = allMarkers.filter(m => m.type === 'stazione' || m.vehicleTypeName === typeMap[typeFilter]);
     }
 
     if (statusFilter !== 'Stato') {
-      allMarkers = allMarkers.filter(m => m.statusName === statusFilter);
+      allMarkers = allMarkers.filter(m => m.type === 'stazione' || m.statusName === statusFilter);
     }
 
     return allMarkers;
   }, [stations, vehicles, searchQuery, typeFilter, statusFilter]);
 
   const getMarkerColor = (marker) => {
-    if (marker.type === 'stazione') {
-      return marker.statusName === 'Disponibile' ? 'bg-stato-attivo' : 'bg-gray-400';
-    }
-
-    if (marker.in_movement) return 'bg-stato-attivo';
-
-    switch (marker.statusName) {
-      case 'Disponibile': return 'bg-accent-blue';
-      case 'Guasto': return 'bg-stato-guasto';
-      case 'In Manutenzione': return 'bg-mezzo-moto';
-      case 'In Carica': return 'bg-stato-inricarica';
-      default: return 'bg-gray-400';
-    }
+    return marker.colorClass;
   };
 
   const createTicket = async (ticketData) => {
