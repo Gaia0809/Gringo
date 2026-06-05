@@ -1,16 +1,26 @@
-# React + Vite
+# Gringo - Frontend (React) ⚛️
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interfaccia utente moderna e responsiva per la gestione della mobilità urbana.
 
-Currently, two official plugins are available:
+## 📋 Prerequisiti
+- Node.js >= 18
+- npm o yarn
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ⚙️ Installazione
+Segui questi passaggi per avviare l'interfaccia:
 
-## React Compiler
+1. **Installa le dipendenze:**
+   ```bash
+   npm install
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. **Avvia in modalità sviluppo:**
+   ```bash
+   npm run dev
+   ```
+   L'applicazione sarà visualizzabile nel browser su: `http://localhost:5173` (o sulla porta indicata nel terminale).
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 💡 Note Tecniche
+- Il progetto utilizza **Tailwind CSS** per lo styling.
+- La mappa interattiva è gestita tramite **MapLibre GL**.
+- Le chiamate API sono inoltrate al backend tramite il proxy configurato in `vite.config.js`.
