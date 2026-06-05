@@ -26,15 +26,23 @@ export default function MappaEspansa({ onClose, stations, vehicles, issues }) {
       statusName: s.status?.name,
     }));
 
-    let vMarkers = (vehicles || []).map(v => ({
-      id: `v-${v.id}`,
-      name: `${v.vehicle_model?.name} - ${v.license_plate}`,
-      type: 'veicolo',
-      latitude: v.coordinates?.[0],
-      longitude: v.coordinates?.[1],
-      vehicleTypeName: v.vehicle_model?.vehicle_type?.name,
-      statusName: v.status?.name,
-    }));
+    let vMarkers = (vehicles || []).map(v => {
+      // Add a tiny jitter if the vehicle is not in movement (so it's at a station)
+      // to avoid perfect overlapping of markers
+      const jitterLat = v.in_movement ? 0 : (Math.random() - 0.5) * 0.0004;
+      const jitterLng = v.in_movement ? 0 : (Math.random() - 0.5) * 0.0004;
+
+      return {
+        id: `v-${v.id}`,
+        name: `${v.vehicle_model?.name} - ${v.license_plate}`,
+        type: 'veicolo',
+        latitude: (v.coordinates?.[0] || 0) + jitterLat,
+        longitude: (v.coordinates?.[1] || 0) + jitterLng,
+        vehicleTypeName: v.vehicle_model?.vehicle_type?.name,
+        statusName: v.status?.name,
+        in_movement: v.in_movement,
+      };
+    });
 
     let allMarkers = [...sMarkers, ...vMarkers].filter(m => m.latitude && m.longitude);
 
@@ -67,6 +75,8 @@ export default function MappaEspansa({ onClose, stations, vehicles, issues }) {
     if (marker.type === 'stazione') {
       return marker.statusName === 'Disponibile' ? 'bg-stato-attivo' : 'bg-gray-400';
     }
+
+    if (marker.in_movement) return 'bg-stato-attivo';
     
     switch (marker.statusName) {
       case 'Disponibile': return 'bg-accent-blue';

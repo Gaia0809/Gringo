@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
 import Map, { Marker } from 'react-map-gl/maplibre';
+import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-export default function MapView({ onExpand, stations, vehicles }) {
+export default function MapView({ onExpand, stations = [], vehicles = [] }) {
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('Ecosistema');
@@ -15,7 +16,7 @@ export default function MapView({ onExpand, stations, vehicles }) {
   });
 
   const markers = useMemo(() => {
-    let sMarkers = (stations || []).map(s => ({
+    let sMarkers = stations.map(s => ({
       id: `s-${s.id}`,
       name: s.name,
       type: 'stazione',
@@ -26,7 +27,7 @@ export default function MapView({ onExpand, stations, vehicles }) {
       info: `Capacità: ${s.capacity} | Veicoli: ${s.vehicles_count}`
     }));
 
-    let vMarkers = (vehicles || []).map(v => {
+    let vMarkers = vehicles.map(v => {
       // Add a tiny jitter if the vehicle is not in movement (so it's at a station)
       // to avoid perfect overlapping of markers
       const jitterLat = v.in_movement ? 0 : (Math.random() - 0.5) * 0.0004;
@@ -44,7 +45,7 @@ export default function MapView({ onExpand, stations, vehicles }) {
       };
     });
 
-    let allMarkers = [...sMarkers, ...vMarkers].filter(m => m.latitude && m.longitude);
+    let allMarkers = [...sMarkers, ...vMarkers].filter(m => m.latitude !== undefined && m.longitude !== undefined);
 
     // Apply Filters
     if (searchQuery) {
@@ -77,9 +78,9 @@ export default function MapView({ onExpand, stations, vehicles }) {
     }
     
     switch (marker.statusName) {
-      case 'Disponibile': return 'bg-accent-blue';
+      case 'Disponibile': return 'bg-stato-disponibile';
       case 'Guasto': return 'bg-stato-guasto';
-      case 'In Manutenzione': return 'bg-mezzo-moto';
+      case 'In Manutenzione': return 'bg-stato-manutenzione';
       case 'In Carica': return 'bg-stato-inricarica';
       default: return 'bg-gray-400';
     }
@@ -163,7 +164,7 @@ export default function MapView({ onExpand, stations, vehicles }) {
         <Map
           {...viewState}
           onMove={evt => setViewState(evt.viewState)}
-          mapLib={import('maplibre-gl')}
+          mapLib={maplibregl}
           mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
           style={{ width: '100%', height: '100%' }}
         >
