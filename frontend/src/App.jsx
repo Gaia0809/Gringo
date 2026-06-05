@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
-import Dashboard from './pages/dashboard.jsx';
+import Dashboard from './pages/Dashboard/dashboard.jsx';
 import GestioneVeicoli from './pages/GestioneVeicoli/GestioneVeicoli.jsx';
 import SupportoTecnico from './pages/SupportoTecnico/SupportoTecnico.jsx';
 import GestioneStazioni from './pages/GestioneStazioni/GestioneStazioni.jsx'; // <-- L'IMPORT DELLA TUA NUOVA PAGINA!

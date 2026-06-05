@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import LeftColumn from '../components/LeftColumn/LeftColumn';
-import MapView from '../components/MapView/MapView';
-import Agenda from '../components/Agenda/Agenda';
-import MappaEspansa from '../components/MapView/MappaEspansa';
-import api from '../api';
+import LeftColumn from './LeftColumn/LeftColumn';
+import MapView from './MapView/MapView';
+import Agenda from './Agenda/Agenda';
+import MappaEspansa from './MapView/MappaEspansa';
+import api from '../../api';
 
 export default function Dashboard() {
   const [isMapExpanded, setIsMapExpanded] = useState(false);
