@@ -1,12 +1,14 @@
 import React from 'react';
 
 /**
- * Common SearchInput component
+ * Atomo: Input di ricerca standardizzato.
+ * Include l'icona lente predefinita per coerenza visiva.
+ * 
  * @param {Object} props
- * @param {string} props.value - Input value
- * @param {Function} props.onChange - Change handler
- * @param {string} [props.placeholder] - Placeholder text
- * @param {string} [props.className] - Additional classes for the container
+ * @param {string} props.value - Valore dell'input
+ * @param {Function} props.onChange - Gestore cambio testo
+ * @param {string} [props.placeholder] - Testo suggerimento
+ * @param {string} [props.className] - Classi extra per il contenitore
  */
 export default function SearchInput({ value, onChange, placeholder = "Cerca...", className = "" }) {
   return (

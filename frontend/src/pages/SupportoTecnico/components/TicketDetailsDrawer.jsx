@@ -1,6 +1,40 @@
-import { useState } from 'react'
-import StatusButton from './StatusButton.jsx'
-import PriorityBadge from './PriorityBadge.jsx'
+import React, { useState } from 'react';
+import StatusBadge from '../../../components/ui/StatusBadge'
+import Button from '../../../components/ui/Button'
+
+const STATUS_STYLES = {
+  Aperti: {
+    default: 'bg-stato-attivo text-brand-testo hover:opacity-90',
+    outline: 'bg-stato-attivo/10 text-brand-testo border border-stato-attivo hover:bg-stato-attivo/20',
+    badge: 'bg-stato-attivo/20 text-brand-testo border border-stato-attivo/30',
+  },
+  'In Corso': {
+    default: 'bg-stato-inricarica text-brand-testo hover:opacity-90',
+    outline: 'bg-stato-inricarica/10 text-brand-testo border border-stato-inricarica hover:bg-stato-inricarica/20',
+    badge: 'bg-stato-inricarica/20 text-brand-testo border border-stato-inricarica/30',
+  },
+  Chiusi: {
+    default: 'bg-stato-disponibile text-brand-testo hover:opacity-90',
+    outline: 'bg-stato-disponibile/10 text-brand-testo border border-stato-disponibile hover:bg-stato-disponibile/20',
+    badge: 'bg-stato-disponibile/20 text-brand-testo border border-stato-disponibile/30',
+  },
+}
+
+const StatusButton = ({ status, onClick, variant = 'default', className = '', disabled = false }) => {
+  const styles = STATUS_STYLES[status] || STATUS_STYLES['Aperti']
+  const style = styles[variant] || styles.default
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`font-semibold rounded-xl transition-all py-2 px-4 text-sm outline-none cursor-pointer ${style} ${className}`}
+    >
+      {status}
+    </button>
+  )
+}
 
 const DetailCard = ({ label, value }) => (
   <div className="bg-brand-sfondo rounded-xl border border-gray-100 p-3">
@@ -50,7 +84,7 @@ const TicketDetailsDrawer = ({ ticket, onAddNote, onEditNote, onDeleteNote, onDe
         <div>
           <div className="flex items-center gap-3 mb-1">
             <span className="text-sm font-bold text-gray-400">#{ticket.id}</span>
-            <PriorityBadge priority={ticket.priority} />
+            <StatusBadge status={ticket.priority} />
           </div>
           <h2 className="text-lg font-bold text-brand-testo leading-snug">{ticket.title}</h2>
         </div>
@@ -117,8 +151,8 @@ const TicketDetailsDrawer = ({ ticket, onAddNote, onEditNote, onDeleteNote, onDe
                       rows={2}
                     />
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => setEditingNoteId(null)} className="text-xs px-2.5 py-1.5 bg-gray-200 rounded-lg cursor-pointer">Annulla</button>
-                      <button onClick={() => saveEdit(nota.id)} className="text-xs px-2.5 py-1.5 bg-brand-testo rounded-lg text-brand-sfondo cursor-pointer">Salva</button>
+                      <Button variant="ghost" onClick={() => setEditingNoteId(null)} className="text-xs px-2.5 py-1.5">Annulla</Button>
+                      <Button onClick={() => saveEdit(nota.id)} className="text-xs px-2.5 py-1.5">Salva</Button>
                     </div>
                   </div>
                 ) : (
@@ -144,12 +178,12 @@ const TicketDetailsDrawer = ({ ticket, onAddNote, onEditNote, onDeleteNote, onDe
             onChange={e => setNewNote(e.target.value)}
             placeholder="Scrivi qui i dettagli del report..."
             rows={3}
-            className="w-full p-3 border border-gray-200 rounded-2xl text-sm outline-none focus:border-gray-400 transition-colors bg-brand-sfondo resize-none"
+            className="w-full p-3 border border-gray-200 rounded-2xl text-sm outline-none focus:border-brand-testo transition-colors bg-brand-sfondo resize-none"
           />
           <div className="flex justify-end">
-            <button type="submit" disabled={!newNote.trim()} className="px-4 py-2 rounded-xl text-sm font-semibold bg-brand-testo text-brand-sfondo hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer">
+            <Button type="submit" disabled={!newNote.trim()}>
               Aggiungi nota
-            </button>
+            </Button>
           </div>
         </form>
       </div>

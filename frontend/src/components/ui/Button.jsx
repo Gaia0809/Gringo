@@ -1,14 +1,14 @@
 import React from 'react';
 
 /**
- * Common Button component
+ * Atomo: Bottone riutilizzabile.
+ * Rappresenta l'azione principale o secondaria in ogni pagina.
+ * 
  * @param {Object} props
- * @param {React.ReactNode} props.children - Label or content
- * @param {Function} [props.onClick] - Click handler
- * @param {'primary' | 'outline' | 'ghost' | 'danger'} [props.variant] - Style variant
- * @param {string} [props.className] - Additional classes
- * @param {boolean} [props.disabled] - Disabled state
- * @param {'button' | 'submit' | 'reset'} [props.type] - Button type
+ * @param {React.ReactNode} props.children - Contenuto (testo o icone)
+ * @param {Function} [props.onClick] - Gestore del click
+ * @param {'primary' | 'outline' | 'ghost' | 'danger'} [props.variant] - Stile visivo
+ * @param {string} [props.className] - Classi Tailwind extra
  */
 export default function Button({ 
   children, 
@@ -18,8 +18,10 @@ export default function Button({
   disabled = false,
   type = 'button'
 }) {
+  // Stili base definiti per coerenza visiva
   const baseStyles = "px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
-  
+
+  // Mappatura varianti stilistiche
   const variants = {
     primary: "bg-brand-testo text-brand-sfondo hover:opacity-90",
     outline: "bg-brand-sfondo text-brand-testo border border-gray-200 hover:bg-gray-50",
@@ -38,3 +40,4 @@ export default function Button({
     </button>
   );
 }
+

@@ -1,24 +1,9 @@
 import { useState, useEffect } from 'react'
-import SearchableSelect from './SearchableSelect.jsx'
 import api from '../../../api.js'
-
-const Field = ({ label, children }) => (
-  <div className="flex flex-col gap-1.5">
-    <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">{label}</label>
-    {children}
-  </div>
-)
-
-const inputClass = "p-2.5 border border-gray-200 rounded-xl outline-none focus:border-gray-400 transition-colors text-sm bg-brand-sfondo text-brand-testo"
+import Modal from '../../../components/ui/Modal'
+import { SmartForm, SmartInput, SmartSelect, SmartSearchableSelect } from '../../../components/SmartForm'
 
 const NewTicketModal = ({ open, onClose, onSave }) => {
-  const [vehicleId, setVehicleId] = useState('')
-  const [title, setTitle] = useState('')
-  const [stationId, setStationId] = useState('')
-  const [priority, setPriority] = useState('Media')
-  const [userId, setUserId] = useState('')
-  const [note, setNote] = useState('')
-
   const [vehicles, setVehicles] = useState([])
   const [stations, setStations] = useState([])
   const [technicians, setTechnicians] = useState([])
@@ -30,119 +15,64 @@ const NewTicketModal = ({ open, onClose, onSave }) => {
       api.get('/stations'),
       api.get('/technicians'),
     ]).then(([v, s, t]) => {
-      setVehicles((v.data || []).map(item => ({ ...item, label: item.license_plate || `ID: ${item.id}` })))
+      setVehicles((v.data || []).map(item => ({ id: item.id, label: item.license_plate || `ID: ${item.id}` })))
       setStations((s.data || []).map(item => ({ 
-        ...item, 
+        id: item.id, 
         label: `${item.name} (${item.vehicle_type?.name || 'Tipo n.d.'})` 
       })))
-      setTechnicians(t.data || [])
+      setTechnicians((t.data || []).map(item => ({ id: item.id, label: item.name })))
     }).catch(err => console.error("Errore di caricamento form:", err))
   }, [open])
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!title.trim() || !vehicleId) return
+  const handleSubmit = (values) => {
     onSave({
-      vehicle_id: vehicleId,
-      title,
-      station_id: stationId || null,
-      priority,
-      user_id: userId || null,
-      note: note.trim() ? note : null
+      ...values,
+      station_id: values.station_id || null,
+      user_id: values.user_id || null,
+      note: values.note?.trim() || null
     })
     onClose()
-    setTitle('')
-    setVehicleId('')
-    setStationId('')
-    setPriority('Media')
-    setUserId('')
-    setNote('')
   }
 
-  if (!open) return null
+  const initialValues = {
+    vehicle_id: '',
+    title: '',
+    station_id: '',
+    priority: 'Media',
+    user_id: '',
+    note: ''
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-testo/40 backdrop-blur-sm p-4">
-      <div className="bg-brand-sfondo rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden border border-gray-100 p-6 flex flex-col gap-5">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-brand-testo">Nuovo Ticket Assistenza</h2>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-brand-sfondowidget transition-colors text-gray-400 hover:text-brand-testo cursor-pointer">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <Modal open={open} onClose={onClose} title="Nuovo Ticket Assistenza" maxWidth="max-w-xl">
+      <SmartForm 
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+        onCancel={onClose}
+        submitLabel="Crea ticket"
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="col-span-2">
+            <SmartInput name="title" label="Titolo / Problema riscontrato" placeholder="Es. Sostituzione batteria" required />
+          </div>
+
+          <SmartSearchableSelect name="vehicle_id" label="Veicolo coinvolto" options={vehicles} placeholder="Seleziona veicolo..." />
+          <SmartSearchableSelect name="station_id" label="Stazione (Opzionale)" options={stations} placeholder="Nessuna stazione" />
+
+          <SmartSelect name="priority" label="Priorità" options={[
+            { id: 'Bassa', label: 'Bassa' },
+            { id: 'Media', label: 'Media' },
+            { id: 'Alta', label: 'Alta' }
+          ]} />
+
+          <SmartSearchableSelect name="user_id" label="Tecnico" options={technicians} placeholder="Non assegnato" />
+
+          <div className="col-span-2">
+            <SmartInput name="note" label="Note iniziali" placeholder="Dettagli del problema..." rows={3} />
+          </div>
         </div>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <Field label="Titolo / Problema riscontrato">
-                <input
-                  type="text"
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  placeholder="Es. Sostituzione batteria"
-                  className={inputClass}
-                  required
-                />
-              </Field>
-            </div>
-
-            <Field label="Veicolo coinvolto">
-              <SearchableSelect
-                value={vehicleId}
-                onChange={setVehicleId}
-                options={vehicles}
-                placeholder="Seleziona veicolo..."
-              />
-            </Field>
-
-            <Field label="Stazione (Opzionale)">
-              <SearchableSelect
-                value={stationId}
-                onChange={setStationId}
-                options={stations}
-                placeholder="Nessuna stazione"
-              />
-            </Field>
-
-            <Field label="Priorità">
-              <select value={priority} onChange={e => setPriority(e.target.value)} className={inputClass}>
-                <option>Bassa</option>
-                <option>Media</option>
-                <option>Alta</option>
-              </select>
-            </Field>
-
-            <Field label="Tecnico">
-              <SearchableSelect
-                value={userId}
-                onChange={setUserId}
-                options={technicians}
-                placeholder="Non assegnato"
-              />
-            </Field>
-
-            <div className="col-span-2">
-              <Field label="Note iniziali">
-                <textarea
-                  value={note}
-                  onChange={e => setNote(e.target.value)}
-                  placeholder="Dettagli del problema..."
-                  rows={3}
-                  className={`${inputClass} resize-none`}
-                />
-              </Field>
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl text-sm font-semibold bg-brand-sfondowidget text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer">Annulla</button>
-            <button type="submit" className="px-4 py-2 rounded-xl text-sm font-semibold bg-brand-testo text-brand-sfondo hover:bg-opacity-90 transition-colors cursor-pointer">Crea ticket</button>
-          </div>
-        </form>
-      </div>
-    </div>
+      </SmartForm>
+    </Modal>
   )
 }
 

@@ -12,8 +12,8 @@ export default function Agenda({ interventions }) {
       <div className="relative flex-1 flex flex-col justify-between">
         
         {/* Linea orario corrente (approssimativa) */}
-        <div className="absolute top-[30%] left-0 right-0 border-t-2 border-accent-blue z-10 flex items-center">
-          <span className="bg-accent-blue text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-11 -translate-y-1/2 shadow-sm">11:30</span>
+        <div className="absolute top-[30%] left-0 right-0 border-t-2 border-stato-disponibile z-10 flex items-center">
+          <span className="bg-stato-disponibile text-brand-testo text-[10px] font-bold px-2 py-0.5 rounded-full ml-11 -translate-y-1/2 shadow-sm">11:30</span>
         </div>
 
         {/* Slot Orari */}
@@ -27,15 +27,15 @@ export default function Agenda({ interventions }) {
         {plannedInterventions.map((int, index) => (
           <div 
             key={int.id}
-            className="absolute left-14 right-1 bg-accent-blue/10 border border-accent-blue/20 rounded-xl p-2.5 flex flex-col justify-center"
+            className="absolute left-14 right-1 rounded-xl p-2.5 flex flex-col justify-center border"
             style={{ 
               top: `${index * 80 + 10}px`, 
               height: '60px',
-              backgroundColor: index % 2 === 0 ? 'rgba(var(--color-accent-blue-rgb), 0.1)' : 'rgba(var(--color-stato-inricarica-rgb), 0.1)',
-              borderColor: index % 2 === 0 ? 'rgba(var(--color-accent-blue-rgb), 0.2)' : 'rgba(var(--color-stato-inricarica-rgb), 0.2)'
+              backgroundColor: index % 2 === 0 ? 'rgba(118, 232, 255, 0.1)' : 'rgba(255, 189, 83, 0.1)',
+              borderColor: index % 2 === 0 ? 'rgba(118, 232, 255, 0.2)' : 'rgba(255, 189, 83, 0.2)'
             }}
           >
-            <div className={`font-bold text-xs ${index % 2 === 0 ? 'text-accent-blue' : 'text-stato-inricarica'}`}>
+            <div className={`font-bold text-xs ${index % 2 === 0 ? 'text-brand-testo' : 'text-stato-inricarica'}`}>
               {int.category?.name || 'Intervento'}
             </div>
             <div className="text-gray-500 text-[10px] font-bold mt-0.5">
