@@ -1,31 +1,68 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 /**
- * Atomo: Menu azioni (tre puntini).
- * Fornisce un menu a tendina per azioni contestuali su una riga o card.
+ * ============================================================
+ * ATOMO: ActionMenu (Menu Contestuale)
+ * ============================================================
+ * Fornisce un menu a tendina (dropdown) attivabile tramite
+ * il classico pulsante con i "tre puntini".
+ * Viene utilizzato nelle tabelle e nelle card per raggruppare
+ * azioni secondarie (es. Modifica, Elimina).
  * 
  * @param {Object} props
- * @param {Array} props.actions - Lista di azioni [{ label, onClick, variant }]
+ * @param {Array} props.actions - Lista di oggetti azione: [{ label, onClick, variant }]
+ * ============================================================
  */
 export default function ActionMenu({ actions = [] }) {
+
+  // ============================================================
+  // USE STATE
+  // ============================================================
+  // Controlla la visibilità del menu a tendina.
   const [open, setOpen] = useState(false);
+
+
+  // ============================================================
+  // USE REF
+  // ============================================================
+  // Punta all'elemento DOM del contenitore del menu.
+  // È fondamentale per determinare se un click avviene "fuori"
+  // dal menu per poterlo chiudere automaticamente.
   const menuRef = useRef(null);
 
+
+  // ============================================================
+  // USE EFFECT: Chiusura al click esterno
+  // ============================================================
+  // Gestisce la chiusura del menu quando l'utente clicca altrove
+  // nella pagina (comportamento standard UX).
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Se abbiamo il riferimento e il click NON è nel menu...
       if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpen(false);
+        setOpen(false); // ...chiudiamo il menu
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
+    // Agganciamo il listener globale al documento
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // CLEANUP: Rimuoviamo il listener quando il componente viene smontato
+    // per evitare perdite di memoria (memory leaks).
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []); // Array vuoto: eseguito solo al montaggio
+
+
+  // ============================================================
+  // RENDER
+  // ============================================================
   return (
     <div className="relative" ref={menuRef}>
+      
+      {/* Tasto Trigger: Tre puntini verticali */}
       <button 
         onClick={(e) => {
-          e.stopPropagation();
+          e.stopPropagation(); // Evitiamo che il click selezioni anche la card/riga sottostante
           setOpen(!open);
         }}
         className="text-gray-400 hover:text-brand-testo transition-colors cursor-pointer p-1 rounded-lg hover:bg-gray-100 outline-none"
@@ -35,6 +72,7 @@ export default function ActionMenu({ actions = [] }) {
         </svg>
       </button>
 
+      {/* Menu a tendina: renderizzato condizionalmente */}
       {open && (
         <div className="absolute right-0 mt-1 w-36 bg-brand-sfondo border border-gray-100 rounded-xl shadow-lg py-1 z-30 overflow-hidden animate-in fade-in zoom-in duration-150">
           {actions.map((action, idx) => (
@@ -42,7 +80,7 @@ export default function ActionMenu({ actions = [] }) {
               key={idx}
               onClick={(e) => {
                 e.stopPropagation();
-                setOpen(false);
+                setOpen(false); // Chiudiamo sempre il menu dopo un'azione
                 action.onClick(e);
               }}
               className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-colors hover:bg-brand-sfondowidget ${
